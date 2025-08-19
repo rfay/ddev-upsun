@@ -6,7 +6,16 @@ The DDEV-Upsun add-on provides integration between Upsun hosting platform and DD
 
 ## Background
 
-This project builds upon lessons learned from the DDEV-Platform.sh add-on, which used a complex bash/golang template approach. The DDEV-Upsun add-on will leverage the new PHP-based add-on implementation technique for cleaner, more maintainable code.
+This project builds upon lessons learned from the [DDEV-Platform.sh add-on](https://github.com/ddev/ddev-platformsh), which used a complex bash/golang template approach. The DDEV-Upsun add-on will leverage the new PHP-based add-on implementation technique for cleaner, more maintainable code.
+
+### Key Reference Documentation
+- **DDEV Add-ons**: [Template](https://github.com/ddev/ddev-addon-template) and [Documentation](https://ddev.readthedocs.io/en/stable/users/extend/additional-services/)
+- **New PHP Add-on Implementation**: [PR #7523](https://github.com/ddev/ddev/pull/7523) and [Developer Docs](https://github.com/rfay/ddev/tree/20250806_rfay_php_addon/docs/content/developers/tmp)
+- **Upsun Documentation**: [Upsun Docs](https://docs.upsun.com)
+  - [PHP Support](https://docs.upsun.com/languages/php.html)
+  - [MySQL/MariaDB](https://docs.upsun.com/add-services/mysql.html)
+  - [PostgreSQL](https://docs.upsun.com/add-services/postgresql.html)
+- **DDEV Documentation**: [DDEV Docs](https://ddev.readthedocs.io)
 
 ## Goals
 
@@ -75,15 +84,17 @@ Each example contains source Upsun configuration (`upsun/.upsun/config.yaml`) an
 
 ### Supported Configurations
 
+**Note**: Version support is based on current Upsun documentation as of project creation. Verify current versions at [Upsun docs](https://docs.upsun.com).
+
 #### PHP Applications
-- PHP versions: All Upsun-supported versions (8.4, 8.3, 8.2, 8.1)
+- PHP versions: All Upsun-supported versions (8.4, 8.3, 8.2, 8.1) - [Current versions](https://docs.upsun.com/languages/php.html)
 - Common PHP frameworks (Drupal, WordPress, Laravel, Symfony)
 - Composer-based dependency management
 
-#### Database Services
-- MariaDB/MySQL: 11.8, 11.4, 10.11, 10.6
-- Oracle MySQL: 8.0, 5.7
-- PostgreSQL: 17, 16, 15, 14, 13, 12
+#### Database Services  
+- MariaDB/MySQL: 11.8, 11.4, 10.11, 10.6 - [Current versions](https://docs.upsun.com/add-services/mysql.html)
+- Oracle MySQL: 8.0, 5.7 - [Current versions](https://docs.upsun.com/add-services/mysql.html)
+- PostgreSQL: 17, 16, 15, 14, 13, 12 - [Current versions](https://docs.upsun.com/add-services/postgresql.html)
 
 #### Basic Services
 - Single database relationship per application
