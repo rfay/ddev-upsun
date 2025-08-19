@@ -1,0 +1,23 @@
+name: laravel-api
+type: laravel
+docroot: public
+php_version: "8.4"
+webserver_type: nginx-fpm
+database:
+  type: postgres
+  version: "16"
+nodejs_version: "20"
+
+# Generated from Upsun configuration
+hooks:
+  post-start:
+    - exec: php artisan migrate --force
+    - exec: php artisan queue:restart
+
+# Upsun relationship mapping
+environment:
+  APP_ENV: "production"
+  APP_DEBUG: "false"
+  LOG_CHANNEL: "stderr"
+  QUEUE_CONNECTION: "database"
+  DATABASE_URL: "postgres://db:db@db:5432/db"

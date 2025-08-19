@@ -45,6 +45,15 @@ Enable developers to check out an Upsun project and automatically configure DDEV
 - **Integration Method**: DDEV add-on framework
 - **Template Engine**: Native PHP (no external templating)
 
+### Reference Examples
+Translation examples for common frameworks are provided in `prd/examples/`:
+- **drupal-composer**: Drupal 10 with PHP 8.3 and MariaDB 10.11
+- **wordpress-composer**: WordPress with PHP 8.2 and Oracle MySQL 8.0
+- **laravel-api**: Laravel API with PHP 8.4 and PostgreSQL 16
+- **symfony-webapp**: Symfony webapp with PHP 8.3 and PostgreSQL 15
+
+Each example contains source Upsun configuration (`upsun/.upsun/config.yaml`) and target DDEV configuration (`ddev/.ddev/config.yaml`) demonstrating the translation patterns.
+
 ### Core Components
 
 #### 1. Upsun Configuration Parser

@@ -1,0 +1,18 @@
+name: drupal-composer
+type: drupal10
+docroot: web
+php_version: "8.3"
+webserver_type: nginx-fpm
+mariadb_version: "10.11"
+nodejs_version: "18"
+
+# Generated from Upsun configuration
+hooks:
+  post-start:
+    - exec: drush cache-rebuild
+    - exec: drush updatedb -y
+    - exec: drush config-import -y
+
+# Upsun relationship mapping
+environment:
+  DATABASE_URL: "mysql://db:db@db:3306/db"

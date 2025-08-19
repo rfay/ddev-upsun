@@ -1,0 +1,43 @@
+applications:
+  app:
+    source:
+      root: /
+    type: php:8.3
+    build:
+      flavor: composer
+    web:
+      locations:
+        "/":
+          root: "public"
+          passthru: "/index.php"
+          index:
+            - index.php
+        "/build":
+          root: "public/build"
+          allow: true
+          expires: 1M
+    mounts:
+      "/var": "shared:files/var"
+      "/public/uploads": "shared:files/uploads"
+    relationships:
+      database: "postgresql:postgresql"
+    variables:
+      env:
+        APP_ENV: prod
+        APP_DEBUG: 0
+    hooks:
+      build: |
+        set -e
+        composer install --no-dev --optimize-autoloader --no-interaction
+        composer run-script auto-scripts
+        npm ci --production
+        npm run build
+      deploy: |
+        set -e
+        php bin/console doctrine:migrations:migrate --no-interaction
+        php bin/console cache:clear
+
+services:
+  postgresql:
+    type: postgresql:15
+    disk: 1024

@@ -1,0 +1,21 @@
+name: symfony-webapp
+type: php
+docroot: public
+php_version: "8.3"
+webserver_type: nginx-fpm
+database:
+  type: postgres
+  version: "15"
+nodejs_version: "18"
+
+# Generated from Upsun configuration
+hooks:
+  post-start:
+    - exec: php bin/console doctrine:migrations:migrate --no-interaction
+    - exec: php bin/console cache:clear
+
+# Upsun relationship mapping
+environment:
+  APP_ENV: "prod"
+  APP_DEBUG: "0"
+  DATABASE_URL: "postgres://db:db@db:5432/db"

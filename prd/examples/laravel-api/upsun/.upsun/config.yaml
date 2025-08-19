@@ -1,0 +1,42 @@
+applications:
+  app:
+    source:
+      root: /
+    type: php:8.4
+    build:
+      flavor: composer
+    web:
+      locations:
+        "/":
+          root: "public"
+          passthru: "/index.php"
+          index:
+            - index.php
+          allow: false
+          rules:
+            \.(css|js|gif|jpe?g|png|ttf|eot|woff2?|otf|cast|mp4|json|xml|txt)$:
+              allow: true
+    relationships:
+      database: "postgresql:postgresql"
+    variables:
+      env:
+        APP_ENV: production
+        APP_DEBUG: false
+        LOG_CHANNEL: stderr
+        QUEUE_CONNECTION: database
+    hooks:
+      build: |
+        set -e
+        composer install --no-dev --optimize-autoloader --no-interaction
+        php artisan config:cache
+        php artisan route:cache
+        php artisan view:cache
+      deploy: |
+        set -e
+        php artisan migrate --force
+        php artisan queue:restart
+
+services:
+  postgresql:
+    type: postgresql:16
+    disk: 1024
