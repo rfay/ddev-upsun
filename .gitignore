@@ -12,6 +12,9 @@ node_modules/
 # Environment variables
 .env
 
+# MCP Configuration with API keys
+.mcp.json
+
 # Editor directories and files
 .idea
 .vscode
