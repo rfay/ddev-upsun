@@ -1,5 +1,6 @@
 <?php
 /**
+ * #ddev-generated
  * DDEV Upsun Add-on Installation Hook
  * 
  * This script is executed when the Upsun add-on is installed via `ddev add-on get`.

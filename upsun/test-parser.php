@@ -1,5 +1,6 @@
 <?php
 /**
+ * #ddev-generated
  * Simple test script for UpsunConfigParser
  * Run this to verify the parser works with example configurations
  */

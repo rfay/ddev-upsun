@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Upsun;
 
 /**
+ * #ddev-generated
  * Upsun Configuration Parser
  * 
  * Parses Upsun configuration files from the .upsun directory and extracts
