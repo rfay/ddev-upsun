@@ -90,7 +90,7 @@ class DdevConfigGenerator
      */
     public function generate(): void
     {
-        $this->generateUpsunConfig();
+        $this->generateDDEVConfigFromUpsunConfig();
         $this->generateEnvironmentFile();
     }
 
@@ -98,16 +98,12 @@ class DdevConfigGenerator
     /**
      * Generate Upsun-specific configuration file
      */
-    private function generateUpsunConfig(): void
+    private function generateDDEVConfigFromUpsunConfig(): void
     {
         $configFile = $this->ddevDir . '/config.upsun.yaml';
         
         $config = [];
 
-        $appName = $this->parser->getApplicationName();
-        if ($appName) {
-            $config['name'] = $appName;
-        }
 
         // Don't override project type - users configure this via `ddev config`
         // Our config.upsun.yaml supplements the main config without changing project type

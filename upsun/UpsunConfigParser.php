@@ -183,6 +183,20 @@ class UpsunConfigParser
             throw new UpsunConfigException("Configuration not parsed. Call parse() first.");
         }
 
+        // Check for applications section (newer Upsun config style)
+        if (isset($this->appConfig['applications']) && is_array($this->appConfig['applications'])) {
+            foreach ($this->appConfig['applications'] as $appName => $appConfig) {
+                if (isset($appConfig['docroot'])) {
+                    return [
+                        'docroot' => $appConfig['docroot'],
+                        'app' => $appName,
+                        // Optionally include more keys from $appConfig if needed
+                    ];
+                }
+            }
+        }
+
+        // Fallback to legacy 'web' config
         return $this->appConfig['web'] ?? [];
     }
 
