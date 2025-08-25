@@ -7,7 +7,14 @@
 
 ## Overview
 
-This add-on integrates Upsun into your [DDEV](https://ddev.com/) project.
+This add-on automatically configures your [DDEV](https://ddev.com/) project to match your Upsun platform configuration. It parses your `.upsun/` configuration files and generates equivalent DDEV settings for local development.
+
+## Features
+
+- **Automatic Configuration**: Detects `.upsun/` directory and processes configuration files
+- **PHP Version Mapping**: Translates Upsun PHP runtime to DDEV equivalents
+- **Database Integration**: Configures MySQL, MariaDB, or PostgreSQL services to match Upsun
+- **Environment Variables**: Maps Upsun environment variables to DDEV equivalents
 
 ## Installation
 
@@ -20,28 +27,26 @@ After installation, make sure to commit the `.ddev` directory to version control
 
 ## Usage
 
-| Command | Description |
-| ------- | ----------- |
-| `ddev describe` | View service status and used ports for Upsun |
-| `ddev logs -s upsun` | Check Upsun logs |
+The add-on automatically processes your Upsun configuration during installation. For projects with existing `.upsun/` directories:
 
-## Advanced Customization
+1. The add-on detects your Upsun configuration
+2. Generates corresponding DDEV configuration files
+3. Updates `.ddev/config.yaml` with appropriate settings
+4. Creates `.ddev/config.upsun.yaml` with Upsun-specific configuration
 
-To change the Docker image:
+### Supported Configurations
 
-```bash
-ddev dotenv set .ddev/.env.upsun --upsun-docker-image="ddev/ddev-utilities:latest"
-ddev add-on get rfay/ddev-upsun
-ddev restart
-```
+- **PHP Versions**: All supported by Upsun, including 8.1-8.4
+- **Database Services**: mysql, mariadb, postgresql
+- **Basic Application Configuration**: Web root, document root
+- **Environment Variables and Relationships**
 
-Make sure to commit the `.ddev/.env.upsun` file to version control.
+### Limitations
 
-All customization options (use with caution):
-
-| Variable | Flag | Default |
-| -------- | ---- | ------- |
-| `UPSUN_DOCKER_IMAGE` | `--upsun-docker-image` | `ddev/ddev-utilities:latest` |
+- Multi-app configurations are not supported
+- Complex service relationships beyond single database
+- Workers and cron jobs are not translated
+- Advanced networking configurations
 
 ## Credits
 

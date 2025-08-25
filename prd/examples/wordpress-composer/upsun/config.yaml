@@ -1,0 +1,35 @@
+name: wordpress-composer
+type: php:8.2
+
+relationships:
+  database:
+    type: mysql:8.0
+    disk: 1024
+
+variables:
+  php:
+    memory_limit: 128M
+    upload_max_filesize: 32M
+    post_max_size: 32M
+  env:
+    WP_ENVIRONMENT_TYPE: production
+
+web:
+  locations:
+    '/':
+      root: 'web'
+      index:
+        - index.php
+      passthru: '/index.php'
+    '/wp-content/uploads':
+      root: 'web/wp-content/uploads'
+      expires: 1y
+
+hooks:
+  build: |
+    composer install --no-dev
+  deploy: |
+    wp core update-db
+
+mounts:
+  '/web/wp-content/uploads': 'shared:files/uploads'

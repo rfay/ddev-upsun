@@ -1,6 +1,14 @@
 name: upsun
 
 project_files:
-  - docker-compose.upsun.yaml
+  - upsun/install-hook.php
+  - upsun/UpsunConfigParser.php
+  - upsun/DdevConfigGenerator.php
+
+post_install_actions:
+  - |
+    <?php
+    # #ddev-description Initialize Upsun configuration
+    require_once('upsun/install-hook.php');
 
 ddev_version_constraint: '>= v1.24.3'

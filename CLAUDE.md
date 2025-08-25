@@ -15,19 +15,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Testing
 
 **Automated Tests:**
-- `bats tests` - Run all add-on tests
+- `bats tests` - Run all add-on tests (primary testing strategy)
 - `bats tests/test-basic.bats` - Test basic functionality
 - `bats tests/test-pull.bats` - Test pull command integration
 
+**PHP Container Testing:**
+- PHP scripts are executed in DDEV containers during installation via `<?php` blocks in install.yaml
+- Scripts run in ephemeral containers using the project's webserver image
+- PHP tests serve as adjuncts to the main bats testing strategy
+- Reference examples: [ddev-redis-php](https://github.com/rfay/ddev-redis-php) and [ddev-platformsh-php](https://github.com/rfay/ddev-platformsh-php)
+
 **Manual Testing:**
 - Create test project: `cd ~/tmp/ddev-test && ddev config --project-type=php`
-- Install local add-on: `ddev get ~/workspace/ddev-upsun`
+- Install local add-on: `ddev add-on get ~/workspace/ddev-upsun`
 - Test with sample `.upsun` configuration directory
 - Verify `ddev pull upsun` functionality
 
 **Test Projects:**
 - Keep sample Upsun configurations in `tests/fixtures/`
-- Test various PHP versions (8.0, 8.1, 8.2, 8.3)
+- Test various PHP versions (8.1-8.4)
 - Test database types (MySQL, MariaDB, PostgreSQL)
 
 ### Whitespace and Formatting
@@ -144,3 +150,6 @@ NEVER proactively create documentation files (*.md) or README files. Only create
 ## Task Master AI Instructions
 **Import Task Master's development workflow commands and guidelines, treat as if import is in the main CLAUDE.md file.**
 @./.taskmaster/CLAUDE.md
+
+- The DDEV PR and documentation for this PHP feature is https://github.com/ddev/ddev/pull/7523 - Read that and its docs to understand how it's used
+- Reference implementation of PHP-based add-ons are in https://github.com/rfay/ddev-redis-php and https://github.com/rfay/ddev-platformsh-php

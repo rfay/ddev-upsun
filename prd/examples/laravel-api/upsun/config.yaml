@@ -1,0 +1,42 @@
+name: laravel-api
+type: php:8.4
+
+relationships:
+  database:
+    type: postgresql:16
+    disk: 1024
+
+variables:
+  php:
+    memory_limit: 512M
+    opcache.enable: 1
+    opcache.memory_consumption: 256
+  env:
+    APP_ENV: production
+    LOG_CHANNEL: stderr
+
+web:
+  locations:
+    '/':
+      root: 'public'
+      index:
+        - index.php
+      passthru: '/index.php'
+    '/storage':
+      root: 'storage/app/public'
+      expires: 1y
+
+hooks:
+  build: |
+    composer install --no-dev --optimize-autoloader
+    npm ci
+    npm run production
+  deploy: |
+    php artisan migrate --force
+    php artisan config:cache
+    php artisan route:cache
+    php artisan view:cache
+
+mounts:
+  '/storage/app': 'shared:files/storage'
+  '/storage/logs': 'shared:files/logs'

@@ -1,0 +1,37 @@
+name: drupal-composer
+type: php:8.3
+
+relationships:
+  database:
+    type: mariadb:10.11
+    disk: 2048
+
+variables:
+  php:
+    memory_limit: 256M
+    max_execution_time: 300
+  env:
+    DRUPAL_ENVIRONMENT: production
+
+web:
+  locations:
+    '/':
+      root: 'web'
+      index:
+        - index.php
+      passthru: '/index.php'
+      expires: 1h
+    '/sites/default/files':
+      root: 'web/sites/default/files'
+      expires: 1y
+
+hooks:
+  build: |
+    composer install --no-dev --optimize-autoloader
+  deploy: |
+    drush updatedb -y
+    drush cache:rebuild
+
+mounts:
+  '/web/sites/default/files': 'shared:files/files'
+  '/private': 'shared:files/private'

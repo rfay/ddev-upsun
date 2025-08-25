@@ -1,0 +1,40 @@
+name: symfony-webapp
+type: php:8.3
+
+relationships:
+  database:
+    type: postgresql:15
+    disk: 2048
+
+variables:
+  php:
+    memory_limit: 256M
+    opcache.enable: 1
+    opcache.interned_strings_buffer: 16
+  env:
+    APP_ENV: prod
+    SYMFONY_DEPRECATIONS_HELPER: disabled
+
+web:
+  locations:
+    '/':
+      root: 'public'
+      index:
+        - index.php
+      passthru: '/index.php'
+    '/build':
+      root: 'public/build'
+      expires: 1y
+
+hooks:
+  build: |
+    composer install --no-dev --optimize-autoloader
+    npm ci
+    npm run build
+  deploy: |
+    php bin/console doctrine:migrations:migrate --no-interaction
+    php bin/console cache:clear
+
+mounts:
+  '/var/cache': 'shared:files/cache'
+  '/var/log': 'shared:files/logs'
