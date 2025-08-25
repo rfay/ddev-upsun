@@ -20,7 +20,7 @@ set_error_handler(function($severity, $message, $file, $line) {
  */
 function installUpsunAddOn(): void
 {
-    $projectRoot = getcwd();
+    $projectRoot = realpath('..');
     $ddevDir = $projectRoot . '/.ddev';
     $upsunDir = $projectRoot . '/.upsun';
     

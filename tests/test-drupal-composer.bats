@@ -60,34 +60,44 @@ teardown() {
   # Verify config.upsun.yaml was created
   assert [ -f .ddev/config.upsun.yaml ]
   
-  # Check that PHP version was parsed correctly
-  run grep "php_version.*8\.3" .ddev/config.upsun.yaml
-  assert_success
+  # Use ddev debug configyaml --full-yaml with yq to check parsed configuration values
   
-  # Check that database config was parsed correctly  
-  run grep -A 1 "database:" .ddev/config.upsun.yaml
+  # Check that PHP version was parsed correctly
+  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.php_version'"
   assert_success
-  run grep "type.*mariadb" .ddev/config.upsun.yaml
+  assert_output "8.3"
+  
+  # Check that database config was parsed correctly
+  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.database.type'"
   assert_success
-  run grep "version.*10\.11" .ddev/config.upsun.yaml
+  assert_output "mariadb"
+  
+  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.database.version'"
   assert_success
+  assert_output "10.11"
   
   # Check that docroot was parsed correctly
-  run grep "docroot.*web" .ddev/config.upsun.yaml
+  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.docroot'"
   assert_success
+  assert_output "web"
   
-  # Check that application name was parsed correctly
-  run grep "name.*drupal-composer" .ddev/config.upsun.yaml
+  # Check that environment variables were parsed correctly using ddev debug configyaml --full-yaml
+  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.web_environment | length'"
   assert_success
+  assert_output "3"
   
-  # Verify environment file was created with PHP settings
-  assert [ -f .ddev/.env.upsun ]
-  run grep "PHP_MEMORY_LIMIT=256M" .ddev/.env.upsun
+  # Check specific environment variables
+  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.web_environment[] | select(test(\"^PHP_MEMORY_LIMIT=\"))'"
   assert_success
-  run grep "PHP_MAX_EXECUTION_TIME=300" .ddev/.env.upsun
+  assert_output "PHP_MEMORY_LIMIT=256M"
+  
+  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.web_environment[] | select(test(\"^PHP_MAX_EXECUTION_TIME=\"))'"
   assert_success
-  run grep "DRUPAL_ENVIRONMENT=production" .ddev/.env.upsun
+  assert_output "PHP_MAX_EXECUTION_TIME=300"
+  
+  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.web_environment[] | select(test(\"^DRUPAL_ENVIRONMENT=\"))'"
   assert_success
+  assert_output "DRUPAL_ENVIRONMENT=production"
   
   # Restart to apply configuration
   run ddev restart

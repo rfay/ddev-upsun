@@ -71,6 +71,26 @@ class UpsunConfigParser
         $relationships = $this->appConfig['relationships'] ?? [];
         
         foreach ($relationships as $name => $config) {
+            // Check if this is a service reference (relationships can be just service names)
+            if ($this->servicesConfig && isset($this->servicesConfig[$name])) {
+                $serviceConfig = $this->servicesConfig[$name];
+                $type = $serviceConfig['type'] ?? null;
+                
+                if ($type && (str_starts_with($type, 'mysql:') || 
+                             str_starts_with($type, 'mariadb:') || 
+                             str_starts_with($type, 'postgresql:'))) {
+                    
+                    $parts = explode(':', $type);
+                    return [
+                        'name' => $name,
+                        'service' => $parts[0],
+                        'version' => $parts[1] ?? 'latest',
+                        'disk' => $serviceConfig['disk'] ?? null
+                    ];
+                }
+            }
+            
+            // Also check for inline relationship config with type
             if (is_array($config) && isset($config['type'])) {
                 $type = $config['type'];
                 
@@ -245,7 +265,23 @@ class UpsunConfigParser
             throw new UpsunConfigException("Invalid YAML in Upsun config file: {$configFile}");
         }
 
-        $this->appConfig = $parsed;
+        // Upsun always uses applications section structure
+        if (!isset($parsed['applications']) || !is_array($parsed['applications'])) {
+            throw new UpsunConfigException("Invalid Upsun config: missing 'applications' section");
+        }
+        
+        // Take the first application config from the applications section
+        $appConfigs = $parsed['applications'];
+        $this->appConfig = array_values($appConfigs)[0];
+        
+        // Store the services section if present
+        if (isset($parsed['services'])) {
+            $this->servicesConfig = $parsed['services'];
+        }
+        
+        // Store the application name from the key
+        $appNames = array_keys($appConfigs);
+        $this->appConfig['name'] = $appNames[0];
     }
 
     /**
