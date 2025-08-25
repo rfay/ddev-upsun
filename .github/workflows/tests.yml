@@ -32,6 +32,8 @@ jobs:
       matrix:
 #        ddev_version: [stable, HEAD]
         ddev_version: [HEAD]
+        bats_file:
+          - drupal-composer.bats
       fail-fast: false
 
     runs-on: ubuntu-latest
