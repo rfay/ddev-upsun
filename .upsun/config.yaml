@@ -56,6 +56,8 @@ applications:
       "/drush-backups": "shared:files/drush-backups"
     relationships:
       mariadb: "mariadb:mysql"
+      redis: 'cache:redis'
+
     hooks:
       build: |
         set -e
@@ -66,10 +68,19 @@ applications:
         cd web
         bash $PLATFORM_APP_DIR/drush/upsun_deploy_drupal.sh
 
+    runtime:
+      # Enable the redis extension so Drupal can communicate with the Redis cache.
+      extensions:
+        - redis
+        - sodium
+        - apcu
+        - blackfire
 
 services:
   mariadb:
     type: mariadb:11.8
+  cache:
+    type: redis:8.0
 
 routes:
   "https://{default}/":

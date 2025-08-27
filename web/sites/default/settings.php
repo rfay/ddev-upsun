@@ -756,9 +756,10 @@ $settings['entity_update_backup'] = TRUE;
  */
 $settings['migrate_node_migrate_type_classic'] = FALSE;
 
-if (getenv('PLATFORM_PROJECT_ENTROPY') != "" && file_exists(__DIR__ . '/settings.upsun.php')) {
+if (getenv('PLATFORM_APPLICATION') && file_exists(__DIR__ . '/settings.upsun.php')) {
   include __DIR__ . '/settings.upsun.php';
 }
+
 
 // Automatically generated include for settings managed by ddev.
 if (getenv('IS_DDEV_PROJECT') == 'true' && file_exists(__DIR__ . '/settings.ddev.php')) {
