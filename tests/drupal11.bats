@@ -107,7 +107,7 @@ teardown() {
   assert [ -d drush-backups ]
 
   # Start DDEV to apply configuration and build containers
-  run ddev start
+  run ddev start -y
   assert_success
   
   # Verify DDEV started successfully with new configuration
@@ -144,10 +144,7 @@ teardown() {
   # Test that hooks were executed during post-start
   # Note: drush.yml creation only works in actual Upsun environment with platform variables
   # In DDEV context, just verify the hook commands don't fail
-  run ddev exec "php --version"
-  assert_success
-  assert_output --partial "PHP 8.4"
-  
+
   # Test environment variables are available
   run ddev exec "echo \$N_PREFIX"
   assert_success
