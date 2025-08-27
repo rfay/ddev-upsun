@@ -69,7 +69,7 @@ applications:
 
 services:
   mariadb:
-    type: mariadb:10.11
+    type: mariadb:11.8
 
 routes:
   "https://{default}/":
