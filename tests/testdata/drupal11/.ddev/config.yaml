@@ -1,4 +1,3 @@
-name: drupal-composer
 type: drupal11
 docroot: ""
 php_version: "8.3"

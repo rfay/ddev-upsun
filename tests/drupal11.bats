@@ -14,7 +14,7 @@ setup() {
   bats_load_library bats-support
 
   export DIR="$(cd "$(dirname "${BATS_TEST_FILENAME}")/.." >/dev/null 2>&1 && pwd)"
-  export PROJNAME="test-drupal-composer"
+  export PROJNAME="test-drupal11"
   mkdir -p ~/tmp
   export TESTDIR=$(mktemp -d ~/tmp/${PROJNAME}.XXXXXX)
   export DDEV_NONINTERACTIVE=true
@@ -23,7 +23,7 @@ setup() {
   cd "${TESTDIR}"
   
   # Copy test fixture
-  cp -r "${DIR}/tests/testdata/drupal-composer/." .
+  cp -r "${DIR}/tests/testdata/drupal11/." .
   
   # Configure DDEV project
   run ddev config --project-name="${PROJNAME}" --project-type=drupal11 --docroot=web
@@ -44,7 +44,7 @@ teardown() {
   fi
 }
 
-@test "install add-on with drupal-composer test fixture" {
+@test "install add-on: drupal11" {
   set -eu -o pipefail
   
   echo "# Installing add-on with project ${PROJNAME} in $(pwd)" >&3

@@ -1,17 +1,17 @@
 applications:
-  drupal-composer:
+  drupal11:
     type: php:8.3
-    
+
     relationships:
       database:
-    
+
     variables:
       php:
         memory_limit: 256M
         max_execution_time: 300
       env:
         DRUPAL_ENVIRONMENT: production
-    
+
     web:
       locations:
         '/':
@@ -23,14 +23,14 @@ applications:
         '/sites/default/files':
           root: 'web/sites/default/files'
           expires: 1y
-    
+
     hooks:
       build: |
         composer install --no-dev --optimize-autoloader
       deploy: |
         drush updatedb -y
         drush cache:rebuild
-    
+
     mounts:
       '/web/sites/default/files': 'shared:files/files'
       '/private': 'shared:files/private'

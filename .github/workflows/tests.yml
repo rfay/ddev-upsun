@@ -33,7 +33,7 @@ jobs:
 #        ddev_version: [stable, HEAD]
         ddev_version: [HEAD]
         bats_file:
-          - drupal-composer.bats
+          - drupal11.bats
       fail-fast: false
 
     runs-on: ubuntu-latest
