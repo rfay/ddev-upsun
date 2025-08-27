@@ -28,6 +28,10 @@ setup() {
   # Configure DDEV project
   run ddev config --project-name="${PROJNAME}" --project-type=drupal11 --docroot=web
   assert_success
+  
+  # Install Redis add-on before installing Upsun add-on for testing
+  run ddev add-on get ddev/ddev-redis
+  assert_success
 }
 
 teardown() {
@@ -86,6 +90,18 @@ teardown() {
   run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.web_environment[] | select(test(\"^N_PREFIX=\"))'"
   assert_success
   assert_output "N_PREFIX=/app/.global"
+
+  # Check that PHP extensions were added as webimage_extra_packages
+  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.webimage_extra_packages[]'"
+  assert_success
+  assert_output --partial "php8.4-redis"
+  
+  # Note: Redis dependency is handled via install.yaml, not DDEV config
+  
+  # Check that Redis pre-start hook was added
+  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.hooks.\"pre-start\"[].\"exec-host\"'"
+  assert_success
+  assert_output --partial "ddev add-on get ddev/ddev-redis"
 
   # Check that Dockerfile.upsun was created with the /app symlink
   assert [ -f .ddev/web-build/Dockerfile.upsun ]
@@ -149,6 +165,28 @@ teardown() {
   run ddev exec "echo \$N_PREFIX"
   assert_success
   assert_output "/app/.global"
+  
+  # Test Redis service is running (should be installed by pre-start hook)
+  run ddev redis-cli ping
+  assert_success
+  assert_output "PONG"
+  
+  # Test all PHP extensions from runtime config are loaded
+  # Get the list of extensions from .upsun/config.yaml
+  run bash -c "yq '.applications.drupal.runtime.extensions[]' .upsun/config.yaml | grep -v blackfire"
+  assert_success
+  
+  # Test each detected extension (excluding blackfire which may not be available in DDEV)
+  while IFS= read -r ext; do
+    if [ -n "$ext" ]; then
+      run ddev exec "php -m | grep -i $ext"
+      assert_success
+      case $ext in
+        apcu) assert_output "APCu" ;;
+        *) assert_output "$ext" ;;
+      esac
+    fi
+  done <<< "$output"
   
   # Test add-on removal
   run ddev stop

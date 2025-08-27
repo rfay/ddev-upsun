@@ -94,6 +94,7 @@ class DdevConfigGenerator
         $this->generateDDEVConfigFromUpsunConfig();
         $this->createMountDirectories();
         $this->generateUpsunDockerfile();
+        $this->handleRedisService();
     }
 
 
@@ -155,9 +156,22 @@ class DdevConfigGenerator
             $config['web_environment'] = $webEnv;
         }
 
+        // Add PHP extensions as webimage_extra_packages
+        $this->addPhpExtensions($config);
+
+        // Add Redis integration if Redis service detected
+        $redisConfig = $this->parser->getRedisConfig();
+        if ($redisConfig) {
+            // Add pre-start hook to install Redis add-on if needed
+            $hooksConfig['pre-start'] = $hooksConfig['pre-start'] ?? [];
+            $hooksConfig['pre-start'][] = [
+                'exec-host' => 'if ! ddev add-on list --installed | grep -q "ddev/ddev-redis"; then echo "Installing Redis add-on..." && ddev add-on get ddev/ddev-redis; fi'
+            ];
+        }
+
         // Add hooks from Upsun configuration
         $hooks = $this->parser->getHooks();
-        $hooksConfig = [];
+        $hooksConfig = $hooksConfig ?? [];
         
         // Map Upsun hooks to DDEV hooks
         if (isset($hooks['build'])) {
@@ -252,6 +266,59 @@ class DdevConfigGenerator
         
         if (file_put_contents($dockerFile, $content) === false) {
             throw new DdevConfigException("Failed to write Upsun Dockerfile: {$dockerFile}");
+        }
+    }
+
+    /**
+     * Add PHP runtime extensions as webimage_extra_packages
+     */
+    private function addPhpExtensions(array &$config): void
+    {
+        $extensions = $this->parser->getPhpExtensions();
+        $phpVersion = $this->parser->getPhpVersion();
+        
+        if (empty($extensions) || !$phpVersion) {
+            return;
+        }
+        
+        // Extensions that don't need separate packages (built-in or special handling)
+        $skipExtensions = [
+            'sodium',    // Built into PHP 8.0+
+            'blackfire', // Requires special installation from blackfire.io repo
+        ];
+        
+        $packages = [];
+        $addedExtensions = [];
+        foreach ($extensions as $extension) {
+            if (!in_array($extension, $skipExtensions)) {
+                // Map extension to PHP package name (php8.4-redis, etc.)
+                $packages[] = "php{$phpVersion}-{$extension}";
+                $addedExtensions[] = $extension;
+            }
+        }
+        
+        if (!empty($packages)) {
+            $config['webimage_extra_packages'] = $packages;
+            echo "✅ Added PHP extensions: " . implode(', ', $addedExtensions) . "\n";
+        }
+        
+        // Note about skipped extensions
+        $skippedExtensions = array_intersect($extensions, $skipExtensions);
+        if (!empty($skippedExtensions)) {
+            echo "ℹ️  Skipped extensions (built-in or special): " . implode(', ', $skippedExtensions) . "\n";
+        }
+    }
+
+    /**
+     * Handle Redis service configuration (placeholder for future use)
+     */
+    private function handleRedisService(): void
+    {
+        $redisConfig = $this->parser->getRedisConfig();
+        if ($redisConfig) {
+            echo "✅ Detected Redis service: {$redisConfig['service']} version {$redisConfig['version']}\n";
+            echo "   - Redis add-on will be auto-installed via pre-start hook\n";
+            echo "   - Redis will be available at redis:6379 in DDEV\n";
         }
     }
 

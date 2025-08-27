@@ -338,6 +338,86 @@ class UpsunConfigParser
     }
 
     /**
+     * Get Redis configuration from relationships and services
+     */
+    public function getRedisConfig(): ?array
+    {
+        if (!$this->appConfig) {
+            throw new UpsunConfigException("Configuration not parsed. Call parse() first.");
+        }
+
+        $relationships = $this->appConfig['relationships'] ?? [];
+        
+        foreach ($relationships as $relationshipName => $relationshipConfig) {
+            // Handle relationship format: "redis: 'cache:redis'"
+            if (is_string($relationshipConfig)) {
+                $parts = explode(':', $relationshipConfig);
+                if (count($parts) >= 2) {
+                    $serviceName = $parts[0]; // e.g., "cache" 
+                    $serviceType = $parts[1]; // e.g., "redis"
+                    
+                    if ($serviceType === 'redis' && $this->servicesConfig && isset($this->servicesConfig[$serviceName])) {
+                        $serviceConfig = $this->servicesConfig[$serviceName];
+                        $type = $serviceConfig['type'] ?? null;
+                        
+                        if ($type && str_starts_with($type, 'redis:')) {
+                            $typeParts = explode(':', $type);
+                            return [
+                                'relationship_name' => $relationshipName,
+                                'service_name' => $serviceName,
+                                'service' => 'redis',
+                                'version' => $typeParts[1] ?? 'latest'
+                            ];
+                        }
+                    }
+                }
+            }
+            
+            // Handle direct service references in relationships
+            if ($this->servicesConfig && isset($this->servicesConfig[$relationshipName])) {
+                $serviceConfig = $this->servicesConfig[$relationshipName];
+                $type = $serviceConfig['type'] ?? null;
+                
+                if ($type && str_starts_with($type, 'redis:')) {
+                    $typeParts = explode(':', $type);
+                    return [
+                        'relationship_name' => $relationshipName,
+                        'service_name' => $relationshipName,
+                        'service' => 'redis',
+                        'version' => $typeParts[1] ?? 'latest'
+                    ];
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get PHP runtime extensions
+     */
+    public function getPhpExtensions(): array
+    {
+        if (!$this->appConfig) {
+            throw new UpsunConfigException("Configuration not parsed. Call parse() first.");
+        }
+
+        return $this->appConfig['runtime']['extensions'] ?? [];
+    }
+    
+    /**
+     * Get raw application config
+     */
+    public function getApplicationConfig(): array
+    {
+        if (!$this->appConfig) {
+            throw new UpsunConfigException("Configuration not parsed. Call parse() first.");
+        }
+        
+        return $this->appConfig;
+    }
+
+    /**
      * Load services configuration (if exists)
      */
     private function loadServicesConfig(): void
