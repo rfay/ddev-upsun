@@ -14,6 +14,27 @@ post_install_actions:
   - |
     <?php
     # #ddev-description Debug Upsun configuration parsing
-    require_once('upsun/debug-parser.php');
+    # require_once('upsun/debug-parser.php');
+
+removal_actions:
+  - |
+    <?php
+    # #ddev-description Remove Upsun-generated files
+    $files_to_remove = [
+      '.ddev/config.upsun.yaml',
+      '.ddev/web-build/Dockerfile.upsun'
+    ];
+    
+    foreach ($files_to_remove as $file) {
+      if (file_exists($file)) {
+        $content = file_get_contents($file);
+        if (strpos($content, '#ddev-generated') !== false) {
+          unlink($file);
+          echo "Removed: $file\n";
+        } else {
+          echo "Skipped: $file (not #ddev-generated)\n";
+        }
+      }
+    }
 
 ddev_version_constraint: '>= v1.24.3'
