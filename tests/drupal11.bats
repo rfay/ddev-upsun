@@ -65,7 +65,7 @@ teardown() {
   # Check that PHP version was parsed correctly
   run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.php_version'"
   assert_success
-  assert_output "8.3"
+  assert_output "8.4"
   
   # Check that database config was parsed correctly
   run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.database.type'"
@@ -74,7 +74,7 @@ teardown() {
   
   run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.database.version'"
   assert_success
-  assert_output "10.11"
+  assert_output "11.8"
   
   # Check that docroot was parsed correctly
   run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.docroot'"
