@@ -1,0 +1,7 @@
+/vendor
+.ddev/.env
+/.drush
+# drush-backups and private may be brought down by `ddev pull upsun`
+/web/sites/default/files
+/drush-backups
+/private
