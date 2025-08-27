@@ -1,6 +1,0 @@
-name: 'Update Status'
-type: module
-description: 'Checks for updates and can notify users if there are new releases available.'
-version: VERSION
-package: Core
-configure: update.settings

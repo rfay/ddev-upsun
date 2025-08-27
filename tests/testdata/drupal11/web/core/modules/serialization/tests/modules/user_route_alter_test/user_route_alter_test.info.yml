@@ -1,4 +1,0 @@
-name: 'User route alter test support'
-description: 'Provides test support for user route alter tests.'
-type: module
-version: VERSION

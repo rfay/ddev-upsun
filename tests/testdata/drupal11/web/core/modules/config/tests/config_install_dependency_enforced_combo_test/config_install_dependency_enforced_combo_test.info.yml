@@ -1,4 +1,0 @@
-name: 'Config install dependency test with mix of enforced and base module dependencies'
-type: module
-package: Testing
-version: VERSION

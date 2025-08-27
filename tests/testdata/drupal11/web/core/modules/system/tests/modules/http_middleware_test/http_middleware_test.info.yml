@@ -1,5 +1,0 @@
-name: 'Test HTTP Middleware'
-type: module
-description: 'Provides a test http middleware for automated tests.'
-package: Testing
-version: VERSION

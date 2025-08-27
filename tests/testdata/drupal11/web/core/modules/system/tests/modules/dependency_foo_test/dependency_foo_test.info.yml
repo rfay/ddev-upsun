@@ -1,5 +1,0 @@
-name: Dependency foo test module
-type: module
-description: 'Dependency foo test module'
-package: Testing
-version: VERSION

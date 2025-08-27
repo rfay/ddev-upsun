@@ -1,8 +1,0 @@
-name: 'Workspace Test'
-type: module
-description: 'Provides supporting code for testing workspaces.'
-package: Testing
-version: VERSION
-dependencies:
-  - drupal:entity_test
-  - drupal:workspaces
