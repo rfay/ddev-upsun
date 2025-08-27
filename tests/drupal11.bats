@@ -149,4 +149,21 @@ teardown() {
   run ddev exec "echo \$N_PREFIX"
   assert_success
   assert_output "/app/.global"
+  
+  # Test add-on removal
+  run ddev stop
+  assert_success
+  
+  run ddev add-on remove upsun
+  assert_success
+  
+  # Verify generated files were removed
+  assert [ ! -f .ddev/config.upsun.yaml ]
+  assert [ ! -f .ddev/web-build/Dockerfile.upsun ]
+  
+  # Verify project files were removed (they get installed in .ddev/upsun/)
+  assert [ ! -f .ddev/upsun/install-hook.php ]
+  assert [ ! -f .ddev/upsun/UpsunConfigGenerator.php ]
+  assert [ ! -f .ddev/upsun/UpsunConfigParser.php ]
+  assert [ ! -f .ddev/upsun/debug-parser.php ]
 }

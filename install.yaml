@@ -20,21 +20,38 @@ removal_actions:
   - |
     <?php
     # #ddev-description Remove Upsun-generated files
+    echo "=== Upsun add-on removal cleanup ===\n";
     $files_to_remove = [
-      '.ddev/config.upsun.yaml',
-      '.ddev/web-build/Dockerfile.upsun'
+      'config.upsun.yaml',
+      'web-build/Dockerfile.upsun'
     ];
     
     foreach ($files_to_remove as $file) {
       if (file_exists($file)) {
         $content = file_get_contents($file);
         if (strpos($content, '#ddev-generated') !== false) {
-          unlink($file);
-          echo "Removed: $file\n";
+          if (unlink($file)) {
+            echo "✅ Removed: $file\n";
+          } else {
+            echo "❌ Failed to remove: $file\n";
+          }
         } else {
-          echo "Skipped: $file (not #ddev-generated)\n";
+          echo "⚠️  Skipped: $file (not #ddev-generated)\n";
+        }
+      } else {
+        echo "ℹ️  Not found: $file\n";
+      }
+    }
+    
+    // Clean up empty web-build directory
+    if (is_dir('web-build')) {
+      $files = array_diff(scandir('web-build'), ['.', '..']);
+      if (empty($files)) {
+        if (rmdir('web-build')) {
+          echo "✅ Removed empty directory: web-build\n";
         }
       }
     }
+    echo "=== Cleanup completed ===\n";
 
 ddev_version_constraint: '>= v1.24.3'
