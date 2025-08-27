@@ -1,5 +1,7 @@
 <?php
 
+// #ddev-generated
+// Debugging script for UpsunConfigParser
 require_once 'upsun/UpsunConfigParser.php';
 
 use Upsun\UpsunConfigParser;
