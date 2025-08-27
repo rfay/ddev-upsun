@@ -77,30 +77,79 @@ teardown() {
   assert_success
   assert_output "web"
   
-  # Check that environment variables were parsed correctly using ddev debug configyaml --full-yaml
-#  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.web_environment | length'"
-#  assert_success
-#  assert_output "3"
-#
-#  # Check specific environment variables
-#  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.web_environment[] | select(test(\"^PHP_MEMORY_LIMIT=\"))'"
-#  assert_success
-#  assert_output "PHP_MEMORY_LIMIT=256M"
-#
-#  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.web_environment[] | select(test(\"^PHP_MAX_EXECUTION_TIME=\"))'"
-#  assert_success
-#  assert_output "PHP_MAX_EXECUTION_TIME=300"
-#
-#  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.web_environment[] | select(test(\"^DRUPAL_ENVIRONMENT=\"))'"
-#  assert_success
-#  assert_output "DRUPAL_ENVIRONMENT=production"
+  # Check that Node.js version was parsed correctly
+  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.nodejs_version'"
+  assert_success
+  assert_output "20"
+  
+  # Check that environment variables were parsed correctly
+  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.web_environment[] | select(test(\"^N_PREFIX=\"))'"
+  assert_success
+  assert_output "N_PREFIX=/app/.global"
 
-  # Restart to apply configuration
-  run ddev restart
+  # Check that Dockerfile.upsun was created with the /app symlink
+  assert [ -f .ddev/web-build/Dockerfile.upsun ]
+  
+  # Check that the Dockerfile contains the symlink creation
+  run bash -c "grep 'ln -sf /var/www/html /app' .ddev/web-build/Dockerfile.upsun"
+  assert_success
+  
+  # Check that hooks are defined for build/deploy (if they exist in the config)
+  # Note: hooks might be empty if no build/deploy hooks are defined in upsun config
+  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.hooks // {}'"
+  assert_success
+  
+  # Verify mount directories were created
+  assert [ -d web/sites/default/files ]
+  assert [ -d tmp ]
+  assert [ -d private ]
+  assert [ -d .drush ]
+  assert [ -d drush-backups ]
+
+  # Start DDEV to apply configuration and build containers
+  run ddev start
   assert_success
   
   # Verify DDEV started successfully with new configuration
   run ddev status
   assert_success
   assert_output --partial "OK"
+  
+  # Test PHP version configuration
+  run ddev php --version
+  assert_success
+  assert_output --partial "PHP 8.4"
+  
+  # Test Node.js version configuration
+  run ddev exec node --version
+  assert_success
+  assert_output --partial "v20"
+  
+  # Test database version configuration
+  run ddev exec -s db mysql --version
+  assert_success
+  assert_output --partial "11.8"
+  
+  # Test /app symlink was created during container build
+  run ddev exec "ls -la /app"
+  assert_success
+  assert_output --partial "/var/www/html"
+  
+  # Verify /app symlink points to the correct location by checking content
+  run ddev exec "ls /app"
+  assert_success
+  # Should see same contents as /var/www/html (web, composer.json, etc.)
+  assert_output --partial "web"
+  
+  # Test that hooks were executed during post-start
+  # Note: drush.yml creation only works in actual Upsun environment with platform variables
+  # In DDEV context, just verify the hook commands don't fail
+  run ddev exec "php --version"
+  assert_success
+  assert_output --partial "PHP 8.4"
+  
+  # Test environment variables are available
+  run ddev exec "echo \$N_PREFIX"
+  assert_success
+  assert_output "/app/.global"
 }

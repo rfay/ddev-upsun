@@ -195,6 +195,59 @@ class UpsunConfigParser
     }
 
     /**
+     * Get Node.js version from dependencies
+     */
+    public function getNodejsVersion(): ?string
+    {
+        if (!$this->appConfig) {
+            throw new UpsunConfigException("Configuration not parsed. Call parse() first.");
+        }
+
+        $dependencies = $this->appConfig['dependencies'] ?? [];
+        $nodejsDeps = $dependencies['nodejs'] ?? [];
+
+        // Look for specific nodejs version patterns
+        foreach ($nodejsDeps as $package => $version) {
+            if ($package === 'nodejs_version' || $package === 'nodejs') {
+                if (is_string($version) && preg_match('/^(\d+)\.?(\d+)?/', $version, $matches)) {
+                    return $matches[1] . ($matches[2] ?? '');
+                }
+            }
+        }
+
+        // Default to latest LTS if nodejs dependencies are present
+        if (!empty($nodejsDeps)) {
+            return '20'; // Latest LTS as of 2024
+        }
+
+        return null;
+    }
+
+    /**
+     * Get mounts configuration
+     */
+    public function getMounts(): array
+    {
+        if (!$this->appConfig) {
+            throw new UpsunConfigException("Configuration not parsed. Call parse() first.");
+        }
+
+        return $this->appConfig['mounts'] ?? [];
+    }
+
+    /**
+     * Get hooks configuration
+     */
+    public function getHooks(): array
+    {
+        if (!$this->appConfig) {
+            throw new UpsunConfigException("Configuration not parsed. Call parse() first.");
+        }
+
+        return $this->appConfig['hooks'] ?? [];
+    }
+
+    /**
      * Get web configuration
      */
     public function getWebConfig(): array

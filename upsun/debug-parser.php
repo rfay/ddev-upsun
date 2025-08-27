@@ -41,6 +41,15 @@ try {
     $webConfig = $parser->getWebConfig();
     echo "Web Config: " . (print_r($webConfig, true)) . "\n";
     
+    $nodejsVersion = $parser->getNodejsVersion();
+    echo "Node.js Version: " . ($nodejsVersion ?? 'NULL') . "\n";
+    
+    $mounts = $parser->getMounts();
+    echo "Mounts: " . (print_r($mounts, true)) . "\n";
+    
+    $hooks = $parser->getHooks();
+    echo "Hooks: " . (print_r($hooks, true)) . "\n";
+    
 } catch (UpsunConfigException $e) {
     echo "ERROR: " . $e->getMessage() . "\n";
 } catch (Exception $e) {
