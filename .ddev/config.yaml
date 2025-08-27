@@ -1,0 +1,21 @@
+name: test-upsun-addon
+type: drupal11
+docroot: web
+php_version: "8.3"
+webserver_type: nginx-fpm
+xdebug_enabled: false
+additional_hostnames: []
+additional_fqdns: []
+database:
+    type: mariadb
+    version: "10.11"
+use_dns_when_possible: true
+composer_version: "2"
+web_environment:
+  - PLATFORM_PROJECT=m5fynmzds7m64
+  - PLATFORM_ENVIRONMENT=drupal11
+
+corepack_enable: true
+hooks:
+  post-start:
+    - composer: install
