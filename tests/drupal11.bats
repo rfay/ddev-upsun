@@ -179,12 +179,9 @@ teardown() {
   # Test each detected extension (excluding blackfire which may not be available in DDEV)
   while IFS= read -r ext; do
     if [ -n "$ext" ]; then
-      run ddev exec "php -m | grep -i $ext"
+      run ddev exec "php -r \"echo extension_loaded('$ext') ? 'loaded' : 'not loaded';\""
       assert_success
-      case $ext in
-        apcu) assert_output "APCu" ;;
-        *) assert_output "$ext" ;;
-      esac
+      assert_output "loaded"
     fi
   done <<< "$output"
   
