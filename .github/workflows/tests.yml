@@ -18,6 +18,19 @@ on:
         description: Debug with tmate
         required: false
         default: false
+      ddev_pr_comment_id:
+        type: string
+        description: "Optional: GitHub comment ID containing nightly.link artifacts"
+        required: false
+      ddev_pr_url:
+        type: string
+        description: "Optional: Direct URL to ddev-linux-amd64.zip (overrides comment)"
+        required: false
+      ddev_pr_artifact_name:
+        type: string
+        description: Artifact link label in the comment
+        default: ddev-linux-amd64.zip
+        required: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -28,9 +41,15 @@ permissions:
 
 jobs:
   tests:
+    env:
+      # Allow repo-level Variables or workflow_dispatch inputs to control PR binary override
+      DDEV_PR_COMMENT_ID: ${{ inputs.ddev_pr_comment_id || vars.DDEV_PR_COMMENT_ID || '' }}
+      DDEV_PR_URL: ${{ inputs.ddev_pr_url || vars.DDEV_PR_URL || '' }}
+      DDEV_PR_ARTIFACT_NAME: ${{ inputs.ddev_pr_artifact_name || vars.DDEV_PR_ARTIFACT_NAME || 'ddev-linux-amd64.zip' }}
     strategy:
       matrix:
 #        ddev_version: [stable, HEAD]
+        # Later step will overrride with a PR version.
         ddev_version: [HEAD]
         bats_file:
           - drupal11.bats
@@ -39,10 +58,149 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: ddev/github-action-add-on-test@v2
+      - name: Prepare add-on test environment (no internal test run)
+        uses: ddev/github-action-add-on-test@v2
         with:
           ddev_version: ${{ matrix.ddev_version }}
           token: ${{ secrets.GITHUB_TOKEN }}
           debug_enabled: ${{ github.event.inputs.debug_enabled }}
           addon_repository: ${{ env.GITHUB_REPOSITORY }}
           addon_ref: ${{ env.GITHUB_REF }}
+          test_command: true # Explicitly enable environment setup; we'll run bats manually after swapping binary
+
+      - name: Download DDEV PR linux/amd64 binary (conditional)
+        id: download_pr_binary
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ env.DDEV_PR_COMMENT_ID != '' || env.DDEV_PR_URL != '' }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_NAME="${DDEV_PR_ARTIFACT_NAME}"
+          brew unlink ddev || true
+
+          if [ -n "${DDEV_PR_URL}" ]; then
+            echo "Using direct artifact URL from DDEV_PR_URL"
+            URL="${DDEV_PR_URL}"
+            echo "DDEV_SOURCE=direct" >> "$GITHUB_ENV"
+            echo "DDEV_SOURCE_URL=${URL}" >> "$GITHUB_ENV"
+          else
+            # Accept either a raw numeric comment ID or a full URL containing #issuecomment-<id>
+            COMMENT_ID="${DDEV_PR_COMMENT_ID}"
+            if echo "${COMMENT_ID}" | grep -q "issuecomment-"; then
+              COMMENT_ID=$(printf '%s' "${COMMENT_ID}" | sed -E 's/.*issuecomment-([0-9]+).*/\1/')
+            fi
+            if ! printf '%s' "${COMMENT_ID}" | grep -Eq '^[0-9]+$'; then
+              echo "::warning::DDEV_PR_COMMENT_ID is not a numeric ID or issuecomment URL; keeping existing ddev binary."
+              exit 0
+            fi
+            echo "Fetching comment body for artifact reference (comment ${COMMENT_ID})..."
+            COMMENT_JSON=$(gh api -H "Cache-Control: no-cache" repos/ddev/ddev/issues/comments/${COMMENT_ID} || true)
+            if [ -z "${COMMENT_JSON}" ]; then
+              echo "::warning::Could not fetch comment ${COMMENT_ID}; keeping existing ddev binary."; exit 0
+            fi
+            BODY=$(printf '%s' "$COMMENT_JSON" | jq -r '.body')
+            # Extract URL for the markdown link labeled by ARTIFACT_NAME; prefer the last occurrence
+            URL=$(printf '%s' "$BODY" | grep -F "[${ARTIFACT_NAME}](" | sed -E 's/.*\((http[^)]*)\).*/\1/' | tail -n1 || true)
+            PR_NUMBER=$(printf '%s' "$COMMENT_JSON" | jq -r '.issue_url' | awk -F/ '{print $NF}')
+            if [ -n "${PR_NUMBER}" ] && [ "${PR_NUMBER}" != "null" ]; then
+              PR_HTML="https://github.com/ddev/ddev/pull/${PR_NUMBER}"
+              echo "Resolved PR URL: ${PR_HTML}"
+              echo "DDEV_SOURCE_PR_URL=${PR_HTML}" >> "$GITHUB_ENV"
+              echo "PR_NUMBER=${PR_NUMBER}" >> "$GITHUB_ENV"
+            fi
+            echo "DDEV_SOURCE=pr" >> "$GITHUB_ENV"
+            echo "DDEV_SOURCE_URL=${URL}" >> "$GITHUB_ENV"
+          fi
+          if [ -z "$URL" ]; then
+            echo "::warning::No artifact URL resolved; keeping existing ddev binary."; exit 0
+          fi
+          if [ "${DDEV_SOURCE:-}" = "pr" ] && [ -n "${PR_HTML:-}" ]; then
+            echo "Using DDEV from PR ${PR_HTML}"
+          fi
+          echo "Artifact URL: $URL"
+          ARTIFACT_ID=$(printf '%s' "$URL" | sed -E 's#.*/artifacts/([0-9]+)\\.zip$#\1#')
+          if [ -n "${ARTIFACT_ID}" ]; then echo "Artifact ID: ${ARTIFACT_ID}"; fi
+          curl -fsSL "$URL" -o /tmp/ddev-pr.zip
+          ls -l /tmp/ddev-pr.zip
+          echo "Extracting..."
+          mkdir -p /tmp/ddev-pr
+          unzip -q /tmp/ddev-pr.zip -d /tmp/ddev-pr || { echo '::error::Extraction failed'; exit 1; }
+          NEW_BIN=$(find /tmp/ddev-pr -maxdepth 3 -type f -name ddev | head -n1 || true)
+          if [ -z "$NEW_BIN" ]; then
+            echo "::error::Could not locate extracted ddev binary"; exit 1
+          fi
+          BEFORE_BIN=$(command -v ddev || true)
+          if [ -n "$BEFORE_BIN" ]; then
+            echo "Existing ddev found at: $BEFORE_BIN"
+            echo "Existing ddev version: $(ddev --version || true)"
+            TARGET_DIR=$(dirname "$BEFORE_BIN")
+            TARGET_BIN="$BEFORE_BIN"
+          else
+            echo "No existing ddev found in PATH; defaulting to /usr/local/bin"
+            TARGET_DIR="/usr/local/bin"
+            TARGET_BIN="/usr/local/bin/ddev"
+          fi
+          echo "Replacing ddev at: $TARGET_BIN"
+          sudo install -m 0755 "$NEW_BIN" "$TARGET_BIN"
+          # Also install ddev-hostname in the same directory as ddev if present
+          HOST_BIN=$(find /tmp/ddev-pr -maxdepth 3 -type f -name ddev-hostname | head -n1 || true)
+          if [ -n "$HOST_BIN" ]; then
+            echo "Installing ddev-hostname into $TARGET_DIR"
+            sudo install -m 0755 "$HOST_BIN" "$TARGET_DIR/ddev-hostname" || true
+          fi
+          echo "DDEV_BIN_PATH=$TARGET_BIN" >> "$GITHUB_ENV"
+          echo "Installed ddev version:"
+          INSTALLED_VER=$("$TARGET_BIN" --version || true)
+          echo "$INSTALLED_VER"
+
+          # Compare installed sha vs PR head sha when available
+          PR_SHA="${DDEV_PR_SHA:-}"
+          if [ -z "${PR_SHA}" ] && [ "${DDEV_SOURCE:-}" = "pr" ] && [ -n "${PR_NUMBER:-}" ]; then
+            PR_SHA=$(gh api repos/ddev/ddev/pulls/${PR_NUMBER} -q .head.sha 2>/dev/null || true)
+          fi
+          if [ -n "${PR_SHA}" ]; then
+            echo "DDEV_PR_SHA=${PR_SHA}" >> "$GITHUB_ENV"
+          fi
+          INSTALLED_SHA=$(printf '%s' "$INSTALLED_VER" | grep -Eo '\\b[a-f0-9]{40}\\b' | head -n1 || true)
+          if [ -z "${INSTALLED_SHA}" ]; then
+            INSTALLED_SHA=$(printf '%s' "$INSTALLED_VER" | grep -Eo '\\b[a-f0-9]{7,40}\\b' | tail -n1 || true)
+          fi
+          echo "Detected installed ddev SHA: ${INSTALLED_SHA:-unknown}"
+          if [ -n "${PR_SHA}" ] && [ -n "${INSTALLED_SHA}" ]; then
+            echo "Comparing installed SHA vs PR head: ${INSTALLED_SHA} vs ${PR_SHA}"
+            if [[ "${INSTALLED_SHA}" == "${PR_SHA}"* ]] || [[ "${PR_SHA}" == "${INSTALLED_SHA}"* ]]; then
+              echo "ddev binary matches PR head SHA"
+            else
+              echo "::warning::Installed ddev sha ${INSTALLED_SHA} does not match PR head ${PR_SHA}"
+            fi
+          fi
+
+      - name: Note DDEV source (HEAD)
+        if: ${{ env.DDEV_PR_COMMENT_ID == '' && env.DDEV_PR_URL == '' }}
+        run: |
+          echo "DDEV_SOURCE=head" >> "$GITHUB_ENV"
+          echo "No PR override configured; using DDEV '${{ matrix.ddev_version }}' (likely HEAD)."
+
+      
+
+      - name: Run bats tests (manual)
+        run: |
+          set -euo pipefail
+          case "${DDEV_SOURCE:-head}" in
+            pr)
+              echo "DDEV source: PR ${DDEV_SOURCE_PR_URL:-unknown}"
+              echo "Artifact: ${DDEV_SOURCE_URL:-unknown}"
+              ;;
+            direct)
+              echo "DDEV source: Direct artifact URL"
+              echo "Artifact: ${DDEV_SOURCE_URL:-unknown}"
+              ;;
+            *)
+              echo "DDEV source: matrix ddev_version='${{ matrix.ddev_version }}' (HEAD)"
+              ;;
+          esac
+          echo "Using ddev version:"; ddev --version
+          which ddev
+          ls -l $(which ddev)
+          echo "Starting bats tests with filter !release"
+          bats tests --filter-tags !release
