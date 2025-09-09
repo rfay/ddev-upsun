@@ -94,7 +94,6 @@ class DdevConfigGenerator
         $this->generateDDEVConfigFromUpsunConfig();
         $this->createMountDirectories();
         $this->generateUpsunDockerfile();
-        $this->handleRedisService();
     }
 
 
@@ -158,16 +157,6 @@ class DdevConfigGenerator
 
         // Add PHP extensions as webimage_extra_packages
         $this->addPhpExtensions($config);
-
-        // Add Redis integration if Redis service detected
-        $redisConfig = $this->parser->getRedisConfig();
-        if ($redisConfig) {
-            // Add pre-start hook to install Redis add-on if needed
-            $hooksConfig['pre-start'] = $hooksConfig['pre-start'] ?? [];
-            $hooksConfig['pre-start'][] = [
-                'exec-host' => 'if ! ddev add-on list --installed | grep -q "ddev/ddev-redis"; then echo "Installing Redis add-on..." && ddev add-on get ddev/ddev-redis; fi'
-            ];
-        }
 
         // Add hooks from Upsun configuration
         $hooks = $this->parser->getHooks();
@@ -309,18 +298,6 @@ class DdevConfigGenerator
         }
     }
 
-    /**
-     * Handle Redis service configuration (placeholder for future use)
-     */
-    private function handleRedisService(): void
-    {
-        $redisConfig = $this->parser->getRedisConfig();
-        if ($redisConfig) {
-            echo "✅ Detected Redis service: {$redisConfig['service']} version {$redisConfig['version']}\n";
-            echo "   - Redis add-on will be auto-installed via pre-start hook\n";
-            echo "   - Redis will be available at redis:6379 in DDEV\n";
-        }
-    }
 
     /**
      * Get supported PHP versions

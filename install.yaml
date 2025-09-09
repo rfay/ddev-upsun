@@ -6,6 +6,40 @@ project_files:
   - upsun/DdevConfigGenerator.php
   - upsun/debug-parser.php
 
+pre_install_actions:
+  - |
+    <?php
+    # #ddev-description Check for Redis service dependency (lightweight detection)
+    $projectRoot = realpath('..');
+    $upsunDir = $projectRoot . '/.upsun';
+    
+    if (is_dir($upsunDir)) {
+        // Look for Redis service in Upsun config files
+        $configFile = $upsunDir . '/config.yaml';
+        $appFile = $upsunDir . '/.platform.app.yaml';
+        
+        $hasRedis = false;
+        
+        // Check both possible config locations
+        foreach ([$configFile, $appFile] as $file) {
+            if (file_exists($file)) {
+                $content = file_get_contents($file);
+                // Simple regex to detect Redis service definition
+                if (preg_match('/^\s*redis:\s*$/m', $content) || 
+                    preg_match('/type:\s*redis/m', $content)) {
+                    $hasRedis = true;
+                    break;
+                }
+            }
+        }
+        
+        if ($hasRedis) {
+            echo "✅ Detected Redis service in .upsun configuration\n";
+            echo "📦 Adding ddev-redis as dynamic dependency\n";
+            file_put_contents('./.runtime-deps-upsun', "ddev/ddev-redis\n", FILE_APPEND);
+        }
+    }
+
 post_install_actions:
   - |
     <?php
