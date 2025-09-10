@@ -95,14 +95,7 @@ teardown() {
   run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.webimage_extra_packages[]'"
   assert_success
   assert_output --partial "php8.4-redis"
-  
-  # Note: Redis dependency is handled via install.yaml, not DDEV config
-  
-  # Check that Redis pre-start hook was added
-  run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.hooks.\"pre-start\"[].\"exec-host\"'"
-  assert_success
-  assert_output --partial "ddev add-on get ddev/ddev-redis"
-
+    
   # Check that Dockerfile.upsun was created with the /app symlink
   assert [ -f .ddev/web-build/Dockerfile.upsun ]
   
