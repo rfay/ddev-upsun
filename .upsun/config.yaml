@@ -57,6 +57,8 @@ applications:
     relationships:
       mariadb: "mariadb:mysql"
       redis: 'cache:redis'
+      opensearch: 'search:opensearch'
+      memcached: 'memory:memcached'
 
     hooks:
       build: |
@@ -81,6 +83,10 @@ services:
     type: mariadb:11.8
   cache:
     type: redis:8.0
+  search:
+    type: opensearch:3
+  memory:
+    type: memcached:1.6
 
 routes:
   "https://{default}/":
