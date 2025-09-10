@@ -4,9 +4,17 @@ project_files:
   - upsun/install-hook.php
   - upsun/UpsunConfigParser.php
   - upsun/DdevConfigGenerator.php
+  - upsun/ServiceDetector.php
   - upsun/debug-parser.php
 
 post_install_actions:
+  - |
+    <?php
+    # #ddev-description Detect services and create dynamic dependencies
+    require_once('upsun/ServiceDetector.php');
+    $projectRoot = realpath('..');
+    $detector = new \Upsun\ServiceDetector($projectRoot);
+    $detector->detectAndCreateDependencies();
   - |
     <?php
     # #ddev-description Initialize Upsun configuration
