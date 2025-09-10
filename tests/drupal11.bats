@@ -63,7 +63,7 @@ teardown() {
   # Verify that the upsun add-on and its dependencies were added
   run ddev add-on list --installed -j | jq -r .raw.[].Name
   assert_success
-  for addon in upsun redis; do
+  for addon in upsun redis ddev-opensearch memcached; do
     assert_output --partial "${addon}"
   done
   
