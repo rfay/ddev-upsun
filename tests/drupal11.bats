@@ -59,9 +59,15 @@ teardown() {
   
   # Verify config.upsun.yaml was created
   assert [ -f .ddev/config.upsun.yaml ]
+
+  # Verify that the upsun add-on and its dependencies were added
+  run ddev add-on list --installed -j | jq -r .raw.[].Name
+  assert_success
+  for addon in upsun redis; do
+    assert_output --partial "${addon}"
+  done
   
   # Use ddev debug configyaml --full-yaml with yq to check parsed configuration values
-  
   # Check that PHP version was parsed correctly
   run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.php_version'"
   assert_success
@@ -95,7 +101,7 @@ teardown() {
   run bash -c "ddev debug configyaml --full-yaml 2>/dev/null | yq '.webimage_extra_packages[]'"
   assert_success
   assert_output --partial "php8.4-redis"
-    
+
   # Check that Dockerfile.upsun was created with the /app symlink
   assert [ -f .ddev/web-build/Dockerfile.upsun ]
   
