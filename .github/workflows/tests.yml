@@ -22,10 +22,6 @@ on:
         type: string
         description: "Optional: GitHub comment ID containing nightly.link artifacts"
         required: false
-      ddev_pr_url:
-        type: string
-        description: "Optional: Direct URL to ddev-linux-amd64.zip (overrides comment)"
-        required: false
       ddev_pr_artifact_name:
         type: string
         description: Artifact link label in the comment
@@ -44,7 +40,6 @@ jobs:
     env:
       # Allow repo-level Variables or workflow_dispatch inputs to control PR binary override
       DDEV_PR_COMMENT_ID: ${{ inputs.ddev_pr_comment_id || vars.DDEV_PR_COMMENT_ID || '' }}
-      DDEV_PR_URL: ${{ inputs.ddev_pr_url || vars.DDEV_PR_URL || '' }}
       DDEV_PR_ARTIFACT_NAME: ${{ inputs.ddev_pr_artifact_name || vars.DDEV_PR_ARTIFACT_NAME || 'ddev-linux-amd64.zip' }}
     strategy:
       matrix:
@@ -71,18 +66,12 @@ jobs:
         id: download_pr_binary
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ env.DDEV_PR_COMMENT_ID != '' || env.DDEV_PR_URL != '' }}
+        if: ${{ env.DDEV_PR_COMMENT_ID != '' }}
         run: |
           set -euo pipefail
           ARTIFACT_NAME="${DDEV_PR_ARTIFACT_NAME}"
           brew unlink ddev || true
 
-          if [ -n "${DDEV_PR_URL}" ]; then
-            echo "Using direct artifact URL from DDEV_PR_URL"
-            URL="${DDEV_PR_URL}"
-            echo "DDEV_SOURCE=direct" >> "$GITHUB_ENV"
-            echo "DDEV_SOURCE_URL=${URL}" >> "$GITHUB_ENV"
-          else
             # Accept either a raw numeric comment ID or a full URL containing #issuecomment-<id>
             COMMENT_ID="${DDEV_PR_COMMENT_ID}"
             if echo "${COMMENT_ID}" | grep -q "issuecomment-"; then
@@ -109,7 +98,6 @@ jobs:
             fi
             echo "DDEV_SOURCE=pr" >> "$GITHUB_ENV"
             echo "DDEV_SOURCE_URL=${URL}" >> "$GITHUB_ENV"
-          fi
           if [ -z "$URL" ]; then
             echo "::warning::No artifact URL resolved; keeping existing ddev binary."; exit 0
           fi
@@ -174,28 +162,37 @@ jobs:
             fi
           fi
 
-      - name: Note DDEV source (HEAD)
-        if: ${{ env.DDEV_PR_COMMENT_ID == '' && env.DDEV_PR_URL == '' }}
+      - name: Note DDEV source (stable or HEAD)
+        if: ${{ env.DDEV_PR_COMMENT_ID == '' }}
         run: |
-          echo "DDEV_SOURCE=head" >> "$GITHUB_ENV"
-          echo "No PR override configured; using DDEV '${{ matrix.ddev_version }}' (likely HEAD)."
+          echo "DDEV_SOURCE=${{ matrix.ddev_version }}" >> "$GITHUB_ENV"
+          echo "No PR override configured; using DDEV '${{ matrix.ddev_version }}'."
+
+      - name: Note DDEV source (PR override)
+        if: ${{ env.DDEV_PR_COMMENT_ID != '' }}
+        run: |
+          echo "Using DDEV from PR comment override"
+          echo "Comment ID: ${DDEV_PR_COMMENT_ID}"
+          if [ -n "${DDEV_SOURCE_PR_URL:-}" ]; then
+            echo "PR URL: ${DDEV_SOURCE_PR_URL}"
+          fi
+          echo "Matrix ddev_version '${{ matrix.ddev_version }}' will be replaced with PR binary"
 
       
 
       - name: Run bats tests (manual)
         run: |
           set -euo pipefail
-          case "${DDEV_SOURCE:-head}" in
+          case "${DDEV_SOURCE:-${{ matrix.ddev_version }}}" in
             pr)
               echo "DDEV source: PR ${DDEV_SOURCE_PR_URL:-unknown}"
               echo "Artifact: ${DDEV_SOURCE_URL:-unknown}"
               ;;
-            direct)
-              echo "DDEV source: Direct artifact URL"
-              echo "Artifact: ${DDEV_SOURCE_URL:-unknown}"
+            stable|HEAD)
+              echo "DDEV source: matrix ddev_version='${{ matrix.ddev_version }}'"
               ;;
             *)
-              echo "DDEV source: matrix ddev_version='${{ matrix.ddev_version }}' (HEAD)"
+              echo "DDEV source: matrix ddev_version='${{ matrix.ddev_version }}'"
               ;;
           esac
           echo "Using ddev version:"; ddev --version
