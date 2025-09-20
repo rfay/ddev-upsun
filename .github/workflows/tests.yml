@@ -48,9 +48,8 @@ jobs:
       DDEV_PR_ARTIFACT_NAME: ${{ inputs.ddev_pr_artifact_name || vars.DDEV_PR_ARTIFACT_NAME || 'ddev-linux-amd64.zip' }}
     strategy:
       matrix:
-#        ddev_version: [stable, HEAD]
-        # Later step will overrride with a PR version.
-        ddev_version: [HEAD]
+        ddev_version: [stable, HEAD]
+#        ddev_version: [HEAD]
         bats_file:
           - drupal11.bats
       fail-fast: false

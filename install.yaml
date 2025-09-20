@@ -66,4 +66,4 @@ removal_actions:
     }
     echo "=== Cleanup completed ===\n";
 
-ddev_version_constraint: '>= v1.24.3'
+ddev_version_constraint: '>= v1.24.8'
