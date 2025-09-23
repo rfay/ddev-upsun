@@ -175,9 +175,15 @@ class DdevConfigGenerator
         // Add PHP extensions as webimage_extra_packages
         $this->addPhpExtensions($config);
 
+        // Add early drush configuration symlink for projects with drush
+        // This must run before Upsun scripts so they can populate the symlinked file
+        $hooksConfig = [];
+        $hooksConfig['post-start'][] = [
+            'exec' => 'if [ -f vendor/bin/drush ]; then mkdir -p ~/.drush; ln -sf /var/www/html/.drush/drush.yml ~/.drush/drush.yml 2>/dev/null || true; fi'
+        ];
+
         // Add hooks from Upsun configuration
         $hooks = $this->parser->getHooks();
-        $hooksConfig = $hooksConfig ?? [];
         
         // Map Upsun hooks to DDEV hooks
         if (isset($hooks['build'])) {
@@ -197,7 +203,7 @@ class DdevConfigGenerator
                 ];
             }
         }
-        
+
         if (!empty($hooksConfig)) {
             $config['hooks'] = $hooksConfig;
         }
