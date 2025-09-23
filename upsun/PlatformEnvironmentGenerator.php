@@ -37,7 +37,7 @@ class PlatformEnvironmentGenerator
     public function generatePlatformVariables(): array
     {
         return [
-            'PLATFORM_APP_DIR' => '/var/www/html',
+            'PLATFORM_APP_DIR' => '/app',
             'PLATFORM_APPLICATION_NAME' => $this->parser->getApplicationName() ?? 'app',
             'PLATFORM_BRANCH' => $this->getCurrentGitBranch(),
             'PLATFORM_DOCUMENT_ROOT' => $this->getDocumentRootPath(),

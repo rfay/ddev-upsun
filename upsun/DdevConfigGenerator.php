@@ -359,6 +359,31 @@ class DdevConfigGenerator
             $webEnv[] = "REDIS_PORT=6379";
             $webEnv[] = "REDIS_SCHEME=redis";
         }
+
+        // Add DB_* environment variables that settings.upsun.php expects
+        // These map from the service-specific variables above
+        if ($dbConfig) {
+            $service = $dbConfig['service'];
+            $isPostgres = ($service === 'postgresql');
+
+            $webEnv[] = "DB_HOST=db";
+            $webEnv[] = "DB_PORT=" . ($isPostgres ? '5432' : '3306');
+            $webEnv[] = "DB_PATH=db";
+            $webEnv[] = "DB_DATABASE=db";
+            $webEnv[] = "DB_USERNAME=db";
+            $webEnv[] = "DB_PASSWORD=db";
+            $webEnv[] = "DB_SCHEME=" . ($isPostgres ? 'pgsql' : 'mysql');
+            $webEnv[] = "DATABASE_URL=" . ($isPostgres ? 'pgsql' : 'mysql') . "://db:db@db:" . ($isPostgres ? '5432' : '3306') . "/db";
+        }
+
+        // Add Redis URL if Redis is configured
+        if ($redisConfig) {
+            $webEnv[] = "CACHE_HOST=redis";
+            $webEnv[] = "CACHE_PORT=6379";
+            $webEnv[] = "CACHE_SCHEME=redis";
+            $webEnv[] = "CACHE_URL=redis://redis:6379";
+            $webEnv[] = "REDIS_URL=redis://redis:6379";
+        }
     }
 
 
