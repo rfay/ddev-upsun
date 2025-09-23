@@ -106,6 +106,8 @@ class DdevConfigGenerator
         
         $config = [];
 
+        // Disable DDEV's settings management so Upsun apps can use Platform.sh ConfigReader
+        $config['disable_settings_management'] = true;
 
         // Don't override project type - users configure this via `ddev config`
         // Our config.upsun.yaml supplements the main config without changing project type
@@ -147,11 +149,23 @@ class DdevConfigGenerator
 
         // Add environment variables
         $envVars = $this->parser->getEnvironmentVariables();
-        if (!empty($envVars)) {
-            $webEnv = [];
-            foreach ($envVars as $key => $value) {
-                $webEnv[] = "{$key}={$value}";
-            }
+         $webEnv = [];
+
+        // Add user-defined environment variables
+        foreach ($envVars as $key => $value) {
+            $webEnv[] = "{$key}={$value}";
+        }
+
+        // Add PLATFORM_* environment variables
+        require_once __DIR__ . '/PlatformEnvironmentGenerator.php';
+        $platformGenerator = new PlatformEnvironmentGenerator($this->parser, $this->projectRoot);
+        $platformVars = $platformGenerator->generatePlatformVariables();
+
+        foreach ($platformVars as $key => $value) {
+            $webEnv[] = "{$key}={$value}";
+        }
+
+        if (!empty($webEnv)) {
             $config['web_environment'] = $webEnv;
         }
 
