@@ -26,7 +26,7 @@ setup() {
   cp -r "${DIR}/tests/testdata/drupal11/." .
   
   # Configure DDEV project
-  run ddev config --project-name="${PROJNAME}" --project-type=drupal11 --docroot=web
+  run ddev config --project-name="${PROJNAME}" --project-type=drupal11 --docroot=web --fail-on-hook-fail
   assert_success
   
   # Install Redis add-on before installing Upsun add-on for testing
