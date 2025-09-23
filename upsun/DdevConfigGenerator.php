@@ -165,6 +165,9 @@ class DdevConfigGenerator
             $webEnv[] = "{$key}={$value}";
         }
 
+        // Add DDEV service environment variables that .environment file expects
+        $this->addDdevServiceVariables($webEnv);
+
         if (!empty($webEnv)) {
             $config['web_environment'] = $webEnv;
         }
@@ -309,6 +312,52 @@ class DdevConfigGenerator
         $skippedExtensions = array_intersect($extensions, $skipExtensions);
         if (!empty($skippedExtensions)) {
             echo "ℹ️  Skipped extensions (built-in or special): " . implode(', ', $skippedExtensions) . "\n";
+        }
+    }
+
+    /**
+     * Add DDEV service environment variables that .environment file expects
+     */
+    private function addDdevServiceVariables(array &$webEnv): void
+    {
+        // Get database configuration to determine service type
+        $dbConfig = $this->parser->getDatabaseConfig();
+
+        if ($dbConfig) {
+            $service = $dbConfig['service'];
+
+            // Map database service types to variable prefixes
+            $variablePrefix = '';
+            switch ($service) {
+                case 'mysql':
+                case 'mariadb':
+                    $variablePrefix = 'MARIADB';
+                    break;
+                case 'oracle-mysql':
+                    $variablePrefix = 'MYSQL';
+                    break;
+                case 'postgresql':
+                    $variablePrefix = 'POSTGRES';
+                    break;
+                default:
+                    $variablePrefix = 'MARIADB'; // Default fallback
+            }
+
+            // Add database environment variables using DDEV defaults
+            $webEnv[] = "{$variablePrefix}_HOST=db";
+            $webEnv[] = "{$variablePrefix}_PORT=" . ($service === 'postgresql' ? '5432' : '3306');
+            $webEnv[] = "{$variablePrefix}_PATH=db";
+            $webEnv[] = "{$variablePrefix}_USERNAME=db";
+            $webEnv[] = "{$variablePrefix}_PASSWORD=db";
+            $webEnv[] = "{$variablePrefix}_SCHEME=" . ($service === 'postgresql' ? 'pgsql' : 'mysql');
+        }
+
+        // Add Redis environment variables if Redis is configured
+        $redisConfig = $this->parser->getRedisConfig();
+        if ($redisConfig) {
+            $webEnv[] = "REDIS_HOST=redis";
+            $webEnv[] = "REDIS_PORT=6379";
+            $webEnv[] = "REDIS_SCHEME=redis";
         }
     }
 

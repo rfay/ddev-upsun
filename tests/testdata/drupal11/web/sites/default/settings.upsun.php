@@ -14,5 +14,6 @@ if (getenv('PLATFORM_PROJECT') != "") {
     }
     $settings['trusted_host_patterns'] = [
       'platformsh\.site$',
+      'ddev\.site',
     ];
 }

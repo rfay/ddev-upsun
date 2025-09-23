@@ -4,13 +4,34 @@ project_files:
   - upsun/install-hook.php
   - upsun/UpsunConfigParser.php
   - upsun/DdevConfigGenerator.php
+  - upsun/PlatformEnvironmentGenerator.php
+  - upsun/EnvironmentLoader.php
   - upsun/ServiceDetector.php
   - upsun/debug-parser.php
 
 post_install_actions:
   - |
+    #ddev-description Write DDEV environment variables for PHP step
+    # TEMPORARY WORKAROUND: Write missing DDEV env vars to file for PHP step
+    # TODO: Remove when DDEV provides these variables to PHP add-on context
+    # Based on https://docs.ddev.com/en/stable/users/extend/custom-commands/#environment-variables-provided
+    echo "# Temporary DDEV environment variables for add-on" > .env.temp
+    echo "DDEV_PRIMARY_URL=${DDEV_PRIMARY_URL:-}" >> .env.temp
+    echo "DDEV_PRIMARY_URL_WITHOUT_PORT=${DDEV_PRIMARY_URL_WITHOUT_PORT:-}" >> .env.temp
+    echo "DDEV_PRIMARY_URL_PORT=${DDEV_PRIMARY_URL_PORT:-}" >> .env.temp
+    echo "DDEV_SCHEME=${DDEV_SCHEME:-}" >> .env.temp
+    echo "DDEV_HOSTNAME=${DDEV_HOSTNAME:-}" >> .env.temp
+    echo "DDEV_HOST_HTTP_PORT=${DDEV_HOST_HTTP_PORT:-}" >> .env.temp
+    echo "DDEV_HOST_HTTPS_PORT=${DDEV_HOST_HTTPS_PORT:-}" >> .env.temp
+    echo "DDEV_ROUTER_HTTP_PORT=${DDEV_ROUTER_HTTP_PORT:-}" >> .env.temp
+    echo "DDEV_ROUTER_HTTPS_PORT=${DDEV_ROUTER_HTTPS_PORT:-}" >> .env.temp
+    echo "ℹ️  Wrote DDEV URL/port environment variables to .env.temp for PHP step"
+  - |
     <?php
     # #ddev-description Detect services and create dynamic dependencies
+    require_once('upsun/EnvironmentLoader.php');
+    \Upsun\EnvironmentLoader::loadDdevEnvironment();
+
     require_once('upsun/ServiceDetector.php');
     $projectRoot = realpath('..');
     $detector = new \Upsun\ServiceDetector($projectRoot);
@@ -18,7 +39,20 @@ post_install_actions:
   - |
     <?php
     # #ddev-description Initialize Upsun configuration
+    require_once('upsun/EnvironmentLoader.php');
+    \Upsun\EnvironmentLoader::loadDdevEnvironment();
+
     require_once('upsun/install-hook.php');
+  - |
+    #ddev-description Copy .environment file to web-entrypoint.d if needed
+    if [ -f ../.environment ]; then
+      mkdir -p web-entrypoint.d
+      cp ../.environment web-entrypoint.d/environment.sh
+      chmod +x web-entrypoint.d/environment.sh
+      echo "✅ Copied .environment to web-entrypoint.d/environment.sh"
+    else
+      echo "ℹ️  No .environment file found to copy"
+    fi
   - |
     <?php
     # #ddev-description Debug Upsun configuration parsing
@@ -32,7 +66,8 @@ removal_actions:
     $files_to_remove = [
       'config.upsun.yaml',
       'web-build/Dockerfile.upsun',
-      '.env.upsun-services'
+      '.env.upsun-services',
+      'web-entrypoint.d/environment.sh'
     ];
     
     foreach ($files_to_remove as $file) {
