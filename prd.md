@@ -76,8 +76,28 @@ Each example contains source Upsun configuration (`upsun/.upsun/config.yaml`) an
 - Translate database service types and versions
 - Convert environment variables
 - Generate appropriate DDEV configuration files
+- **Generate PLATFORM_* environment variables** for application compatibility
 
-#### 3. Validation and Error Handling
+#### 3. PLATFORM_* Environment Variables Generator
+- Generate all required PLATFORM_* environment variables for Upsun application compatibility
+- **Generated Variables**:
+  - `PLATFORM_APP_DIR` - Application directory path (`/var/www/html`)
+  - `PLATFORM_APPLICATION_NAME` - Application name from Upsun config
+  - `PLATFORM_BRANCH` - Current Git branch (detected automatically)
+  - `PLATFORM_DOCUMENT_ROOT` - Web document root path
+  - `PLATFORM_ENVIRONMENT_TYPE` - Environment type (`development` for DDEV)
+  - `PLATFORM_PROJECT_ENTROPY` - Random string for security purposes
+  - `PLATFORM_RELATIONSHIPS` - Base64-encoded JSON of service connections
+  - `PLATFORM_ROUTES` - Base64-encoded JSON of route definitions
+  - `PLATFORM_VARIABLES` - Base64-encoded JSON of user variables
+  - `PLATFORM_SMTP_HOST` - DDEV's mailpit SMTP host
+  - `PLATFORM_CACHE_DIR` - Cache directory path
+  - `PLATFORM_TREE_ID` - Git commit hash or generated identifier
+- **External Variables** (user-configured):
+  - `PLATFORM_PROJECT` - Upsun project ID (set via `ddev config`)
+  - `PLATFORM_ENVIRONMENT` - Upsun environment name (set via `ddev config`)
+
+#### 4. Validation and Error Handling
 - Validate Upsun configuration compatibility
 - Provide clear error messages for unsupported features
 - Graceful degradation when partial translation is possible
@@ -221,11 +241,12 @@ task-master update-subtask --id=X.Z --prompt="DDEV translation created config.ya
 6. **Basic fixture validation pipeline**
 
 ### Phase 2: Enhanced Features
-1. Improved error handling and validation
-2. Support for additional database versions
-3. Environment variable management
-4. Enhanced pull command features
-5. **Cross-platform environment validation**
+1. **PLATFORM_* Environment Variables Implementation** - Generate all required PLATFORM_* environment variables for application compatibility
+2. Improved error handling and validation
+3. Support for additional database versions
+4. Environment variable management
+5. Enhanced pull command features
+6. **Cross-platform environment validation**
 
 ### Phase 3: Advanced Integration
 1. Multi-service support (within single-app constraint)
