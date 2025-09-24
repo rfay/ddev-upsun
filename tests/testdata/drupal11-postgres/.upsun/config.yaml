@@ -71,12 +71,12 @@ applications:
         bash $PLATFORM_APP_DIR/drush/upsun_deploy_drupal.sh
 
     runtime:
-      # Enable the redis extension so Drupal can communicate with the Redis cache.
       extensions:
         - redis
         - sodium
         - apcu
         - blackfire
+        - pdo_pgsql
 
 services:
   postgresql:

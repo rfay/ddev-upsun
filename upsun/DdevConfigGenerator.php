@@ -312,7 +312,10 @@ class DdevConfigGenerator
         // Extensions that don't need separate packages (built-in or special handling)
         $skipExtensions = [
             'sodium',    // Built into PHP 8.0+
-            'blackfire', // Requires special installation from blackfire.io repo
+            'blackfire', // Provided by DDEV
+            'pdo_pgsql', // provided by DDEV
+            'pgsql'
+
         ];
         
         $packages = [];
