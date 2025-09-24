@@ -1,0 +1,11 @@
+name: 'Memcache test'
+type: module
+description: 'Support module for memcache testing.'
+package: Testing
+dependencies:
+  - memcache:memcache
+
+# Information added by Drupal.org packaging script on 2024-08-14
+version: '8.x-2.7'
+project: 'memcache'
+datestamp: 1723657821

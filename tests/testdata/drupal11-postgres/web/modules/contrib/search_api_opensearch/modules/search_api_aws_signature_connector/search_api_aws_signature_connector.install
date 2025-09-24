@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions.
+ */
+
+use Aws\Credentials\Credentials;
+
+/**
+ * Implements hook_requirements().
+ */
+function search_api_aws_signature_connector_requirements(string $phase): array {
+  if ($phase === 'install') {
+    if (!class_exists(Credentials::class)) {
+      return [
+        'search_api_aws_signature_connector' => [
+          'description' => t('The <a href=":url_aws_sdk">aws/aws-sdk-php</a> library is required by <em>Search API OpenSearch</em> sub-module <em>Search API OpenSearch AWS Signature Connector</em>.', [':url_aws_sdk' => 'http://aws.amazon.com/sdkforphp']),
+          'severity' => REQUIREMENT_ERROR,
+        ],
+      ];
+    }
+  }
+  return [];
+}
