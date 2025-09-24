@@ -72,49 +72,6 @@ teardown() {
   assert_nodejs_version
   assert_app_symlink
 
-  # Debug database configuration before testing drush
-  echo "# DEBUG: Checking database configuration" >&3
-  run ddev describe
-  echo "# DEBUG: ddev describe output:" >&3
-  echo "$output" >&3
-
-  echo "# DEBUG: Checking if psql works" >&3
-  run ddev psql -c "SELECT 1;"
-  echo "# DEBUG: psql result: status=$status" >&3
-  echo "$output" >&3
-
-  echo "# DEBUG: Checking database environment variables" >&3
-  run ddev exec "env | grep -E '(DB_|POSTGRES)'"
-  echo "# DEBUG: DB environment variables:" >&3
-  echo "$output" >&3
-
-  echo "# DEBUG: Checking Drupal database settings" >&3
-  run ddev exec "php -r \"require_once '/var/www/html/web/sites/default/settings.php'; print_r(\\\$databases);\""
-  echo "# DEBUG: Drupal database config:" >&3
-  echo "$output" >&3
-
-  echo "# DEBUG: Testing drush database status commands" >&3
-  run ddev drush status
-  echo "# DEBUG: Full drush status:" >&3
-  echo "$output" >&3
-
-  run ddev drush status --fields=db-status --format=string
-  echo "# DEBUG: Specific db-status field: status=$status" >&3
-  echo "# DEBUG: Output: '$output'" >&3
-
-  echo "# DEBUG: Checking PostgreSQL tables exist" >&3
-  run ddev psql -c "\dt"
-  echo "# DEBUG: PostgreSQL tables: status=$status" >&3
-  echo "$output" >&3
-
-  echo "# DEBUG: Checking web functionality" >&3
-  run ddev describe -j
-  local describe_output="$output"
-  local primary_url
-  primary_url=$(echo "$describe_output" | jq -r '.raw.primary_url')
-  echo "# DEBUG: Testing URL: $primary_url" >&3
-  run curl -s -o /dev/null -w '%{http_code}' "${primary_url}"
-  echo "# DEBUG: Curl response code: $output" >&3
 
   assert_drush_functionality
   assert_database_connectivity "postgresql" "POSTGRES"
@@ -128,9 +85,7 @@ teardown() {
   assert_output --partial "17"
 
   # Test PostgreSQL-specific environment variables
-  run ddev exec "echo \$POSTGRESQL_HOST"
+  run ddev exec "echo \$POSTGRES_HOST"
   assert_success
   assert_output "db"
-
-  # Add-on removal test removed - dependency order issues cause hangs
 }
