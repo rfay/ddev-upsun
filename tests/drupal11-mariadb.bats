@@ -41,7 +41,7 @@ teardown() {
   fi
 }
 
-@test "install add-on: drupal11-mariadb" {
+@test "drupal11-mariadb" {
   set -eu -o pipefail
   load per_test.sh
   load shared/common-assertions.bash

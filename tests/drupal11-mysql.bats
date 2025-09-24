@@ -41,7 +41,7 @@ teardown() {
   fi
 }
 
-@test "install add-on: drupal11-mysql" {
+@test "drupal11-mysql" {
   set -eu -o pipefail
   load per_test.sh
   load shared/common-assertions.bash
