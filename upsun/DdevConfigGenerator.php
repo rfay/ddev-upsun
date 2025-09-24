@@ -109,6 +109,16 @@ class DdevConfigGenerator
         // Disable DDEV's settings management so Upsun apps can use Platform.sh ConfigReader
         $config['disable_settings_management'] = true;
 
+        // Remove settings.ddev.php if it exists since we're disabling settings management
+        $settingsDdevFile = $this->projectRoot . '/web/sites/default/settings.ddev.php';
+        if (file_exists($settingsDdevFile)) {
+            if (unlink($settingsDdevFile)) {
+                echo "✅ Removed settings.ddev.php (disable_settings_management is enabled)\n";
+            } else {
+                echo "⚠️  Failed to remove settings.ddev.php\n";
+            }
+        }
+
         // Don't override project type - users configure this via `ddev config`
         // Our config.upsun.yaml supplements the main config without changing project type
 
@@ -175,9 +185,15 @@ class DdevConfigGenerator
         // Add PHP extensions as webimage_extra_packages
         $this->addPhpExtensions($config);
 
+        // Add early composer install to ensure dependencies are available
+        // This must run first before any scripts that depend on vendor/
+        $hooksConfig = [];
+        $hooksConfig['post-start'][] = [
+            'exec' => 'if [ -f composer.json ] && [ ! -d vendor ]; then composer install --no-dev --optimize-autoloader; fi'
+        ];
+
         // Add early drush configuration symlink for projects with drush
         // This must run before Upsun scripts so they can populate the symlinked file
-        $hooksConfig = [];
         $hooksConfig['post-start'][] = [
             'exec' => 'if [ -f vendor/bin/drush ]; then mkdir -p ~/.drush; ln -sf /var/www/html/.drush/drush.yml ~/.drush/drush.yml 2>/dev/null || true; fi'
         ];

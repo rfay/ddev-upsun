@@ -76,8 +76,9 @@ class UpsunConfigParser
                 $serviceConfig = $this->servicesConfig[$name];
                 $type = $serviceConfig['type'] ?? null;
                 
-                if ($type && (str_starts_with($type, 'mysql:') || 
-                             str_starts_with($type, 'mariadb:') || 
+                if ($type && (str_starts_with($type, 'mysql:') ||
+                             str_starts_with($type, 'mariadb:') ||
+                             str_starts_with($type, 'oracle-mysql:') ||
                              str_starts_with($type, 'postgresql:'))) {
                     
                     $parts = explode(':', $type);
@@ -95,8 +96,9 @@ class UpsunConfigParser
                 $type = $config['type'];
                 
                 // Check for database services
-                if (str_starts_with($type, 'mysql:') || 
-                    str_starts_with($type, 'mariadb:') || 
+                if (str_starts_with($type, 'mysql:') ||
+                    str_starts_with($type, 'mariadb:') ||
+                    str_starts_with($type, 'oracle-mysql:') ||
                     str_starts_with($type, 'postgresql:')) {
                     
                     $parts = explode(':', $type);
