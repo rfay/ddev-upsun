@@ -8,15 +8,15 @@ per_test_setup() {
   run ddev add-on get ${PROJECT_SOURCE:-}
   assert_success
 
+  echo "# ddev start with PROJNAME=${PROJNAME:-} in ${TESTDIR:-} ($(pwd))" >&3
+  run ddev start -y
+  assert_success
+
   if [ -f ${PROJECT_SOURCE}/tests/testdata/${testname}/db.sql.gz ]; then
     echo "# Importing database ${PROJECT_SOURCE}/tests/testdata/${testname}/db.sql.gz" >&3
     run ddev import-db --file=${PROJECT_SOURCE}/tests/testdata/${testname}/db.sql.gz
     assert_success
   fi
-
-  echo "# ddev restart with PROJNAME=${PROJNAME:-} in ${TESTDIR:-} ($(pwd))" >&3
-  run ddev restart
-  assert_success
 }
 
 per_test_teardown() {

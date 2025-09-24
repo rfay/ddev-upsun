@@ -38,6 +38,7 @@ class PlatformEnvironmentGenerator
     {
         return [
             'PLATFORM_APP_DIR' => '/app',
+            'PLATFORM_APPLICATION' => $this->generateApplicationData(),
             'PLATFORM_APPLICATION_NAME' => $this->parser->getApplicationName() ?? 'app',
             'PLATFORM_BRANCH' => $this->getCurrentGitBranch(),
             'PLATFORM_DOCUMENT_ROOT' => $this->getDocumentRootPath(),
@@ -210,6 +211,27 @@ class PlatformEnvironmentGenerator
         }
 
         return base64_encode(json_encode($variables));
+    }
+
+    /**
+     * Generate PLATFORM_APPLICATION as Base64-encoded JSON
+     *
+     * This contains application configuration data that settings.php checks for
+     */
+    private function generateApplicationData(): string
+    {
+        $appData = [
+            'name' => $this->parser->getApplicationName() ?? 'app',
+            'type' => 'php:' . ($this->parser->getPhpVersion() ?? '8.3'),
+            'disk' => 2048,
+            'size' => 'S',
+            'preflight' => [
+                'enabled' => true,
+                'ignored_rules' => []
+            ]
+        ];
+
+        return base64_encode(json_encode($appData));
     }
 
     /**
