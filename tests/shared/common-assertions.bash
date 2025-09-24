@@ -107,24 +107,13 @@ assert_redis_connectivity() {
 # Assert Memcached connectivity through Drupal
 assert_memcached_connectivity() {
   # Test that Drupal can actually write and read from Memcached
-  run ddev drush eval "
-    if (class_exists('Memcached')) {
-      \$host = getenv('MEMORY_HOST');
-      \$port = getenv('MEMORY_PORT');
-      \$m = new Memcached();
-      \$m->addServer(\$host, \$port);
-      \$test_key = 'ddev_test_' . time();
-      \$test_value = 'test_value';
-      \$set_result = \$m->set(\$test_key, \$test_value, 10);
-      \$get_result = \$m->get(\$test_key);
-      \$m->delete(\$test_key);
-      print 'Memcached test: set=' . (\$set_result ? 'success' : 'fail') . ', get=' . (\$get_result === \$test_value ? 'success' : 'fail');
-    } else {
-      print 'Memcached class not available';
-    }
-  "
+  run ddev drush ev "
+  \$cache = \Drupal::cache('render');
+  \$cache->set('memcache_test', 'hello world');
+  var_dump(\$cache->get('memcache_test')->data);
+"
   assert_success
-  assert_output --partial "set=success, get=success"
+  assert_output --partial 'string(11) "hello world"'
 }
 
 # Assert cache backend functionality through Drupal
