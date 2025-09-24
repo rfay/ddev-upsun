@@ -263,7 +263,7 @@ $databases = [];
  */
 # $settings['config_sync_directory'] = '/directory/outside/webroot';
 $settings['config_sync_directory'] = dirname(DRUPAL_ROOT) . '/config/sync';
-The
+
 /**
  * Settings:
  *
@@ -757,7 +757,7 @@ $settings['entity_update_backup'] = TRUE;
  */
 $settings['migrate_node_migrate_type_classic'] = FALSE;
 
-if (getenv('PLATFORM_APPLICATION') && file_exists(__DIR__ . '/settings.upsun.php')) {
+if (getenv('PLATFORM_APPLICATION_NAME') && file_exists(__DIR__ . '/settings.upsun.php')) {
   include __DIR__ . '/settings.upsun.php';
 }
 
