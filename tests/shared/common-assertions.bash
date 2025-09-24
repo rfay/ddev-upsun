@@ -104,6 +104,45 @@ assert_redis_connectivity() {
   assert_output "PONG"
 }
 
+# Assert Memcached connectivity through Drupal
+assert_memcached_connectivity() {
+  # Test that Drupal can actually write and read from Memcached
+  run ddev drush eval "
+    if (class_exists('Memcached')) {
+      \$host = getenv('MEMORY_HOST');
+      \$port = getenv('MEMORY_PORT');
+      \$m = new Memcached();
+      \$m->addServer(\$host, \$port);
+      \$test_key = 'ddev_test_' . time();
+      \$test_value = 'test_value';
+      \$set_result = \$m->set(\$test_key, \$test_value, 10);
+      \$get_result = \$m->get(\$test_key);
+      \$m->delete(\$test_key);
+      print 'Memcached test: set=' . (\$set_result ? 'success' : 'fail') . ', get=' . (\$get_result === \$test_value ? 'success' : 'fail');
+    } else {
+      print 'Memcached class not available';
+    }
+  "
+  assert_success
+  assert_output --partial "set=success, get=success"
+}
+
+# Assert cache backend functionality through Drupal
+assert_cache_backends() {
+  # Test that Drupal cache backends can actually store and retrieve data
+  run ddev drush eval "
+    \$cache_service = \Drupal::cache('render');
+    \$test_cid = 'ddev_test_' . time();
+    \$test_data = ['test' => 'data', 'timestamp' => time()];
+    \$cache_service->set(\$test_cid, \$test_data);
+    \$cached = \$cache_service->get(\$test_cid);
+    \$cache_service->delete(\$test_cid);
+    print 'Cache test: ' . (\$cached && \$cached->data['test'] === 'data' ? 'success' : 'fail');
+  "
+  assert_success
+  assert_output --partial "success"
+}
+
 # Assert PLATFORM_* environment variables
 assert_platform_variables() {
   # Test critical PLATFORM_* variables exist and have correct values

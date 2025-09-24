@@ -220,6 +220,11 @@ class DdevConfigGenerator
             }
         }
 
+        // Add Drupal config import if this is a Drupal project with drush and actual config files
+        $hooksConfig['post-start'][] = [
+            'exec' => 'if [ -f vendor/bin/drush ] && [ -d config/sync ] && [ "$(find config/sync -name "*.yml" 2>/dev/null | wc -l)" -gt 0 ]; then cd web && ../vendor/bin/drush config:import --yes || true; fi'
+        ];
+
         if (!empty($hooksConfig)) {
             $config['hooks'] = $hooksConfig;
         }
