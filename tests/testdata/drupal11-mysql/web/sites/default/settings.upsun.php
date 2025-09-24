@@ -1,6 +1,5 @@
 <?php
 
-
 if (getenv('PLATFORM_PROJECT') != "") {
     $databases['default']['default']['database'] = getenv('DB_PATH');
     $databases['default']['default']['username'] = getenv('DB_USERNAME');
@@ -16,6 +15,14 @@ if (getenv('PLATFORM_PROJECT') != "") {
       'platformsh\.site$',
       'ddev\.site',
       getenv('DDEV_HOSTNAME'),
+      'localhost',
+      '127\.0\.0\.1',
+    ];
+
+    $settings['search_api.server.opensearch']['backend_config']['connector_config'] = [
+      'scheme' => 'http',
+      'host' => getenv('SEARCH_HOST') ?: 'opensearch',
+      'port' => getenv('SEARCH_PORT') ?: 9200,
     ];
 
     // Redis and Memcache settings; just demonstration
@@ -32,9 +39,6 @@ if (getenv('PLATFORM_PROJECT') != "") {
     $settings['cache']['bins']['render'] = 'cache.backend.memory';
     $settings['cache']['bins']['dynamic_page_cache'] = 'cache.backend.memory';
 
-    #if (class_exists(\Drupal\redis\Cache\CacheBackendFactory::class)) {
-      $settings['cache']['bins']['bootstrap'] = 'cache.backend.redis';
-      $settings['cache']['bins']['config'] = 'cache.backend.redis';
-    #}
-
+    $settings['cache']['bins']['bootstrap'] = 'cache.backend.redis';
+    $settings['cache']['bins']['config'] = 'cache.backend.redis';
 }

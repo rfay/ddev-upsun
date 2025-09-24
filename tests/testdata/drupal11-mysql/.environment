@@ -1,22 +1,30 @@
 # Set database environment variables
-export DB_HOST="$MYSQL_HOST"
-export DB_PORT="$MYSQL_PORT"
-export DB_PATH="$MYSQL_PATH"
+export DB_HOST="${MYSQL_HOST:-db}"
+export DB_PORT="${MYSQL_PORT:-3306}"
+export DB_PATH="${MYSQL_PATH:-db}"
 export DB_DATABASE="$DB_PATH"
-export DB_USERNAME="$MYSQL_USERNAME"
-export DB_PASSWORD="$MYSQL_PASSWORD"
-export DB_SCHEME="$MYSQL_SCHEME"
+export DB_USERNAME="${MYSQL_USERNAME:-db}"
+export DB_PASSWORD="${MYSQL_PASSWORD:-}"
+export DB_SCHEME="${MYSQL_SCHEME:-mysql}"
 export DATABASE_URL="${DB_SCHEME}://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_PATH}"
 
+# SEARCH/opensearch
+export SEARCH_HOST="${OPENSEARCH_HOST:-opensearch}"
+export SEARCH_PORT="${OPENSEARCH_PORT:-9200}"
+export SEARCH_SCHEME="${OPENSEARCH_SCHEME:-http}"
+export SEARCH_URL="${SEARCH_SCHEME}://${SEARCH_HOST}:${SEARCH_PORT}"
+
 # Set Cache environment variables
-export CACHE_HOST="$REDIS_HOST"
-export CACHE_PORT="$REDIS_PORT"
-export CACHE_SCHEME="$REDIS_SCHEME"
+export CACHE_HOST="${REDIS_HOST:-redis}"
+export CACHE_PORT="${REDIS_PORT:-6379}"
+export CACHE_SCHEME="${REDIS_SCHEME:-redis}"
 export CACHE_URL="${CACHE_SCHEME}://${CACHE_HOST}:${CACHE_PORT}"
 
 # MEMCACHED/MEMORY
-export MEMORY_HOST="$MEMCACHED_HOST"
-export MEMORY_PORT="$MEMCACHED_PORT"
+export MEMORY_HOST="${MEMCACHED_HOST:-memcached}"
+export MEMORY_PORT="${MEMCACHED_PORT:-11211}"
+export MEMORY_SCHEME="${MEMCACHED_SCHEME:-memcached}"
+export MEMORY_URL="${MEMORY_SCHEME}://${MEMORY_HOST}:${MEMORY_PORT}"
 
 # Set Redis environment variables
 export REDIS_URL="$CACHE_URL"
