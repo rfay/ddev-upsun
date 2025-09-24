@@ -47,7 +47,8 @@ post_install_actions:
     #ddev-description Copy .environment file to web-entrypoint.d if needed
     if [ -f ../.environment ]; then
       mkdir -p web-entrypoint.d
-      cp ../.environment web-entrypoint.d/environment.sh
+      echo "#ddev-generated" > web-entrypoint.d/environment.sh
+      cat ../.environment >> web-entrypoint.d/environment.sh
       chmod +x web-entrypoint.d/environment.sh
       echo "✅ Copied .environment to web-entrypoint.d/environment.sh"
     else
