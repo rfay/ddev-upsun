@@ -1,0 +1,27 @@
+uuid: 16108d53-1a76-4176-83eb-18464ab2161c
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.footer
+  module:
+    - system
+  theme:
+    - umami
+_core:
+  default_config_hash: 9SflLKjOukDutHBBc0A8bldXeitoSFwFyezQoYqiQxI
+id: umami_footer
+theme: umami
+region: footer
+weight: 0
+provider: null
+plugin: 'system_menu_block:footer'
+settings:
+  id: 'system_menu_block:footer'
+  label: 'Tell us what you think'
+  label_display: '1'
+  provider: system
+  level: 1
+  depth: null
+  expand_all_items: false
+visibility: {  }
