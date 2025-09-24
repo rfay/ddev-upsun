@@ -32,9 +32,9 @@ if (getenv('PLATFORM_PROJECT') != "") {
     $settings['cache']['bins']['render'] = 'cache.backend.memory';
     $settings['cache']['bins']['dynamic_page_cache'] = 'cache.backend.memory';
 
-    #if (class_exists(\Drupal\redis\Cache\CacheBackendFactory::class)) {
+    if (class_exists(\Drupal\redis\Cache\CacheBackendFactory::class)) {
       $settings['cache']['bins']['bootstrap'] = 'cache.backend.redis';
       $settings['cache']['bins']['config'] = 'cache.backend.redis';
-    #}
+    }
 
 }
