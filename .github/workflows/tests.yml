@@ -201,4 +201,4 @@ jobs:
           which ddev
           ls -l $(which ddev)
           echo "Starting bats tests"
-          bats tests --verbose-run --filter-tags ${{ matrix.bats_tag }}
+          bats tests --verbose-run -f ${{ matrix.bats_tag }}
