@@ -44,9 +44,11 @@ jobs:
     strategy:
       matrix:
         ddev_version: [stable, HEAD]
-#        ddev_version: [HEAD]
-        bats_file:
-          - drupal11.bats
+        bats_tag: [
+          "drupal11-mariadb",
+          "drupal11-mysql",
+          "drupal11-postgres",
+        ]
       fail-fast: false
 
     runs-on: ubuntu-latest
@@ -199,4 +201,4 @@ jobs:
           which ddev
           ls -l $(which ddev)
           echo "Starting bats tests with filter !release"
-          bats tests --filter-tags !release
+          bats tests --filter-tags ${{ matrix.bats_tag }}
