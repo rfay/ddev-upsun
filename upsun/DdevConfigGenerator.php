@@ -20,7 +20,7 @@ namespace Upsun;
  */
 class DdevConfigGenerator
 {
-    private UpsunConfigParser $parser;
+    private UpsunConfigParserInterface $parser;
     private string $projectRoot;
     private string $ddevDir;
 
@@ -73,7 +73,7 @@ class DdevConfigGenerator
     ];
 
 
-    public function __construct(UpsunConfigParser $parser, string $projectRoot)
+    public function __construct(UpsunConfigParserInterface $parser, string $projectRoot)
     {
         $this->parser = $parser;
         $this->projectRoot = rtrim($projectRoot, '/');

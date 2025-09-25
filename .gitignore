@@ -24,5 +24,9 @@ node_modules/
 *.sln
 *.sw?
 
+# Claude Code settings
+.claude/settings.local.json
+.claude/settings.json.bak
+
 # OS specific
 .DS_Store

@@ -8,6 +8,15 @@ The DDEV-Upsun add-on provides integration between Upsun hosting platform and DD
 
 This project builds upon lessons learned from the [DDEV-Platform.sh add-on](https://github.com/ddev/ddev-platformsh), which used a complex bash/golang template approach. The DDEV-Upsun add-on will leverage the new PHP-based add-on implementation technique for cleaner, more maintainable code.
 
+### Platform.sh to Upsun Transition
+
+Platform.sh has rebranded to "Upsun" and now supports two distinct configuration styles:
+
+1. **Upsun Flex Configuration**: Modern configuration using `.upsun/config.yaml` and related files
+2. **Upsun Fixed Configuration**: Legacy Platform.sh configuration style using `.platform.app.yaml` and `.platform/` directory
+
+The original Platform.sh configuration style (now called "Upsun Fixed") remains fully supported by Upsun but follows different file structures and naming conventions. This add-on must support both configuration styles to maximize compatibility with existing projects.
+
 ### Key Reference Documentation
 - **DDEV Add-ons**: [Template](https://github.com/ddev/ddev-addon-template) and [Documentation](https://ddev.readthedocs.io/en/stable/users/extend/additional-services/)
 - **New PHP Add-on Implementation**: [PR #7523](https://github.com/ddev/ddev/pull/7523) and [Developer Docs](https://github.com/rfay/ddev/tree/20250806_rfay_php_addon/docs/content/developers/tmp)
@@ -15,16 +24,20 @@ This project builds upon lessons learned from the [DDEV-Platform.sh add-on](http
   - [PHP Support](https://docs.upsun.com/languages/php.html)
   - [MySQL/MariaDB](https://docs.upsun.com/add-services/mysql.html)
   - [PostgreSQL](https://docs.upsun.com/add-services/postgresql.html)
+  - [Migration from Fixed to Standard](https://docs.upsun.com/learn/tutorials/migrating/from-fixed.html#convert-manually)
+- **Upsun Fixed Documentation**: [Fixed Format Docs](https://fixed.docs.upsun.com/)
 - **DDEV Documentation**: [DDEV Docs](https://ddev.readthedocs.io)
 
 ## Goals
 
 ### Primary Goal
-Enable developers to check out an Upsun project and automatically configure DDEV to match the production environment, supporting `ddev pull upsun` functionality.
+Enable developers to check out an Upsun project (either Flex or Fixed configuration format) and automatically configure DDEV to match the production environment, supporting `ddev pull upsun` functionality.
 
 ### Success Criteria
-- Successfully parse basic Upsun configuration from `.upsun` directory
-- Translate PHP versions and database configurations to DDEV equivalents
+- Successfully parse Upsun Flex configuration from `.upsun` directory
+- Successfully parse Upsun Fixed configuration from `.platform.app.yaml` and `.platform/` directory
+- Automatically detect which configuration format is present in the project
+- Translate PHP versions and database configurations to DDEV equivalents for both formats
 - Enable `ddev pull upsun` command for database and file synchronization
 - Provide clear error messages when translation is not possible
 
@@ -32,10 +45,14 @@ Enable developers to check out an Upsun project and automatically configure DDEV
 
 ### In Scope (Phase 1)
 - **Single-app Upsun projects** with one database relationship
-- **PHP version translation** from Upsun to DDEV configuration
+- **Dual configuration format support**:
+  - Upsun Flex format (`.upsun/config.yaml`)
+  - Upsun Fixed format (`.platform.app.yaml` and `.platform/` directory)
+- **Automatic format detection** and appropriate parser selection
+- **PHP version translation** from both configuration formats to DDEV configuration
 - **Database version translation** (MySQL, PostgreSQL, MariaDB)
-- **Basic service configuration** interpretation
-- **Environment variable mapping** from Upsun to DDEV
+- **Basic service configuration** interpretation for both formats
+- **Environment variable mapping** from both formats to DDEV
 - **Integration with existing `ddev pull upsun` functionality**
 - **Error handling and user feedback** for unsupported configurations
 
@@ -66,10 +83,25 @@ Each example contains source Upsun configuration (`upsun/.upsun/config.yaml`) an
 ### Core Components
 
 #### 1. Upsun Configuration Parser
-- Parse `.upsun/` directory configuration files (input source files)
-- Extract application and service definitions from Upsun project
-- Identify database relationships and versions
-- Detect PHP runtime configuration
+**Dual Format Support**: The parser must handle both configuration formats:
+
+**Flex Format Parser**:
+- Parse `.upsun/config.yaml` and related files (input source files)
+- Extract application and service definitions from Upsun Flex project
+- Identify database relationships and versions from Flex format
+- Detect PHP runtime configuration from Flex format
+
+**Fixed Format Parser**:
+- Parse `.platform.app.yaml`, `.platform/routes.yaml`, and `.platform/services.yaml` (legacy input files)
+- Extract application and service definitions from Fixed format configuration
+- Identify database relationships and versions from Fixed format
+- Detect PHP runtime configuration from Fixed format
+- Map Fixed format paths to Flex format equivalents internally
+
+**Format Detection**:
+- Automatically detect configuration format based on file presence
+- Priority: Flex format (`.upsun/` directory) takes precedence over Fixed format
+- Detection logic: `.upsun/config.yaml` exists = Flex; `.platform.app.yaml` exists and no `.upsun/` = Fixed
 
 #### 2. DDEV Configuration Translator
 - Map PHP versions between Upsun and DDEV
@@ -125,8 +157,10 @@ Each example contains source Upsun configuration (`upsun/.upsun/config.yaml`) an
 
 ### Installation Flow
 1. User adds DDEV-Upsun add-on to existing project: `ddev get ddev/ddev-upsun`
-2. Add-on detects `.upsun` directory and configuration
-3. Add-on parses Upsun config and generates DDEV configuration
+2. Add-on automatically detects configuration format:
+   - **Flex Format**: Detects `.upsun/config.yaml` and related files
+   - **Fixed Format**: Detects `.platform.app.yaml` and `.platform/` directory (when no `.upsun/` directory exists)
+3. Add-on parses appropriate configuration format and generates DDEV configuration
 4. User can immediately use `ddev start` with translated configuration
 
 ### Pull Workflow
