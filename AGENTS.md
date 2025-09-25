@@ -1,24 +1,8 @@
 # AGENTS.md
 
-This file provides guidance to AI agents when working with code in this repository.
+This file provides guidance to AI agents when working with the ddev-upsun add-on codebase.
 
-## Communication Style
-
-- Use direct, concise language without unnecessary adjectives or adverbs
-- Avoid flowery or marketing-style language ("tremendous", "dramatically", "revolutionary", etc.)
-- Don't include flattery or excessive praise ("excellent!", "perfect!", "great job!")
-- State facts and findings directly without embellishment
-- Skip introductory phrases like "I'm excited to", "I'd be happy to", "Let me dive into"
-- Avoid concluding with summary statements unless specifically requested
-- When presenting options or analysis, lead with the core information, not commentary about it
-
-### AI Language Guidelines
-
-- Avoid words that reveal AI writing: "Comprehensive", "works perfectly", "You're absolutely right"
-- Don't say "perfect" in response to actions
-- Don't claim results are "ready for production use" without verification
-
-## Project Overview
+## DDEV Upsun Add-on Project Overview
 
 This is a DDEV add-on that provides experimental integration between [Upsun](https://upsun.com/) projects and [DDEV](https://ddev.com). It parses Upsun `.upsun/config.yaml` configuration files and generates equivalent DDEV settings for local development.
 
@@ -145,63 +129,7 @@ The add-on processes Upsun configuration files:
 ### Development Environment Setup
 
 - **Temporary files**: Use `~/tmp` for temporary directories and test projects
-- **Command execution**: For bash commands that don't start with a script or executable, wrap with `bash -c "..."`
 - **Local testing**: Always test add-on installation with local path before publishing
-
-## Working with Claude Code
-
-### Branch Naming
-
-Use descriptive branch names that include:
-
-- Date in YYYYMMDD format
-- Your GitHub username
-- Brief description of the work
-
-Format: `YYYYMMDD_<username>_<short_description>`
-
-Examples:
-
-- `20250925_rfay_move_to_ddev`
-- `20250925_username_fix_postgres`
-- `20250925_contributor_update_tests`
-
-**Branch Creation Strategy:**
-
-The recommended approach for creating branches is:
-
-```bash
-git fetch upstream && git checkout -b <branch_name> upstream/main --no-track
-```
-
-This method:
-
-- Fetches latest upstream changes
-- Creates branch directly from upstream/main
-- Doesn't require syncing local main branch
-- Uses --no-track to avoid tracking upstream/main
-
-### Pull Request Creation
-
-When creating pull requests for DDEV add-ons, follow the PR template structure from `.github/PULL_REQUEST_TEMPLATE.md`:
-
-**Required Sections:**
-
-- **The Issue:** Reference issue number with `#<issue>` and brief description
-- **How This PR Solves The Issue:** Technical explanation of the solution
-- **Manual Testing Instructions:** Step-by-step guide for testing changes
-- **Automated Testing Overview:** Description of tests or explanation why none needed
-- **Release/Deployment Notes:** Impact assessment and deployment considerations
-
-**For commits that will become PRs:** Include the complete PR template content in commit messages. This ensures GitHub PRs are pre-populated and don't require additional editing.
-
-**Complete Pre-Commit Checklist:**
-
-1. Make your changes
-2. Run appropriate tests (`bats tests` or targeted tests)
-3. Fix any issues reported
-4. Stage changes with `git add`
-5. Commit with proper message format
 
 ## DDEV Add-on Development
 
@@ -243,6 +171,10 @@ When creating pull requests for DDEV add-ons, follow the PR template structure f
 - PHP parsing logic runs inside DDEV web container (no local PHP required)
 - Upsun CLI available in DDEV web container for pull operations
 - All file operations occur within DDEV context
+
+## General DDEV Development Patterns
+
+For standard DDEV organization patterns including communication style, branch naming, PR creation, security practices, and common development practices, see the [organization-wide AGENTS.md](https://github.com/ddev/.github/blob/main/AGENTS.md).
 
 ## Important Instruction Reminders
 
