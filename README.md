@@ -3,8 +3,9 @@
 [![last commit](https://img.shields.io/github/last-commit/ddev/ddev-upsun)](https://github.com/ddev/ddev-upsun/commits)
 [![release](https://img.shields.io/github/v/release/ddev/ddev-upsun)](https://github.com/ddev/ddev-upsun/releases/latest)
 
-# DDEV Upsun ⚠️ **EXPERIMENTAL** ⚠️
+# DDEV Upsun (EXPERIMENTAL)
 
+> **Warning:** This add-on is experimental and under active development.
 ## Overview
 
 [Upsun](https://upsun.com/) is a unified, secure, enterprise-grade platform for building, running and scaling web applications.
