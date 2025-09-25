@@ -9,7 +9,7 @@ namespace Upsun;
  * Fixed Configuration Detector
  *
  * Detects Upsun Fixed (legacy Platform.sh) configuration format by checking
- * for presence of .platform.app.yaml and absence of .upsun directory.
+ * for presence of .platform.app.yaml and absence of .upsun/config.yaml.
  */
 class FixedConfigDetector
 {
@@ -25,22 +25,22 @@ class FixedConfigDetector
      *
      * Detection logic:
      * - .platform.app.yaml file must exist
-     * - .upsun directory must NOT exist (Flex takes precedence)
+     * - .upsun/config.yaml must NOT exist (complete Flex takes precedence)
      *
      * @return bool True if Fixed format is detected
      */
     public function isFixedFormat(): bool
     {
         $platformAppYaml = $this->projectRoot . '/.platform.app.yaml';
-        $upsunDir = $this->projectRoot . '/.upsun';
+        $upsunConfigYaml = $this->projectRoot . '/.upsun/config.yaml';
 
         // Check if .platform.app.yaml exists
         if (!file_exists($platformAppYaml)) {
             return false;
         }
 
-        // Check that .upsun directory does NOT exist (Flex format takes precedence)
-        if (is_dir($upsunDir)) {
+        // Check that complete Flex configuration does NOT exist (Flex format takes precedence)
+        if (file_exists($upsunConfigYaml)) {
             return false;
         }
 
