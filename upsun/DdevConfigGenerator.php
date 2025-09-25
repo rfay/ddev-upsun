@@ -46,29 +46,60 @@ class DdevConfigGenerator
         // Oracle MySQL versions (oracle-mysql service in Upsun -> mysql in DDEV)
         'oracle-mysql' => [
             '5.7' => '5.7',
-            '8.0' => '8.0'
+            '8.0' => '8.0',
+            '8.4' => '8.4'  // DDEV supports MySQL 8.4
         ],
         // MariaDB versions (mysql/mariadb services in Upsun -> mariadb in DDEV)
+        // Note: mysql service in Upsun refers to MariaDB, not Oracle MySQL
         'mysql' => [
+            // Current versions
             '10.6' => '10.6',
             '10.11' => '10.11',
             '11.4' => '11.4',
-            '11.8' => '11.8'
+            '11.8' => '11.8',
+            // Deprecated versions (for legacy Platform.sh compatibility)
+            // DDEV supports MariaDB 5.5-10.8, 10.11, 11.4, 11.8
+            '5.5' => '5.5',
+            '10.0' => '10.0',   // Use exact versions where DDEV supports them
+            '10.1' => '10.1',
+            '10.2' => '10.2',
+            '10.3' => '10.3',
+            '10.4' => '10.4',
+            '10.5' => '10.5',
         ],
         'mariadb' => [
+            // Current versions
             '10.6' => '10.6',
             '10.11' => '10.11',
             '11.4' => '11.4',
-            '11.8' => '11.8'
+            '11.8' => '11.8',
+            // Deprecated versions (for legacy Platform.sh compatibility)
+            // DDEV supports MariaDB 5.5-10.8, 10.11, 11.4, 11.8
+            '5.5' => '5.5',
+            '10.0' => '10.0',   // Use exact versions where DDEV supports them
+            '10.1' => '10.1',
+            '10.2' => '10.2',
+            '10.3' => '10.3',
+            '10.4' => '10.4',
+            '10.5' => '10.5',
         ],
         // PostgreSQL versions (postgresql service in Upsun -> postgres in DDEV)
+        // DDEV supports PostgreSQL 9-17
         'postgresql' => [
+            // Current versions
             '12' => '12',
-            '13' => '13', 
+            '13' => '13',
             '14' => '14',
             '15' => '15',
             '16' => '16',
-            '17' => '17'
+            '17' => '17',
+            // Deprecated versions
+            '9.3' => '9',
+            '9.4' => '9',
+            '9.5' => '9',
+            '9.6' => '9',
+            '10' => '10',
+            '11' => '11'
         ]
     ];
 

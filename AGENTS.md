@@ -31,6 +31,7 @@ For comprehensive DDEV add-on development documentation, see:
 - Install local add-on: `ddev add-on get ~/workspace/ddev-upsun`
 - Test with sample `.upsun` configuration directory
 - Verify `ddev pull upsun` functionality
+- Remove all installed add-ons when starting from scratch: `for item in $(ddev add-on list --installed -j | jq -r .raw.[].Name); do ddev add-on remove $item; done`
 
 **Test Projects:**
 - Keep sample Upsun test fixtures in `tests/testdata/`
