@@ -1,0 +1,46 @@
+include:
+  - project: $_GITLAB_TEMPLATES_REPO
+    ref: $_GITLAB_TEMPLATES_REF
+    file:
+      - '/includes/include.drupalci.main.yml'
+      - '/includes/include.drupalci.variables.yml'
+      - '/includes/include.drupalci.workflows.yml'
+
+variables:
+  _PHPUNIT_CONCURRENT: '1'
+  SKIP_CSPELL: 1
+  OPT_IN_TEST_PREVIOUS_MAJOR: 1
+  OPT_IN_TEST_PREVIOUS_MINOR: 1
+  OPT_IN_TEST_NEXT_MINOR: 1
+  OPT_IN_TEST_NEXT_MAJOR: 1
+  OPT_IN_TEST_MAX_PHP: 1
+
+#
+# Start custom overrides.
+#
+phpunit:
+  extends: .phpunit-base
+  services:
+    - !reference [.with-database]
+    - !reference [.with-chrome]
+    - name: memcached:latest
+  before_script:
+    # https://docs.gitlab.com/ee/ci/jobs/index.html#pre-collapse-sections
+    - echo -e "\e[0Ksection_start:`date +%s`:my_first_section[collapsed=true]\r\e[0KInstall PHP Extension"
+    - apt-get update && apt-get install --no-install-recommends -y
+    - apt-get -y install gcc make autoconf libc-dev pkg-config
+    - apt install -y libmemcached-dev zlib1g-dev libssl-dev
+    - pecl install -f memcached && docker-php-ext-enable memcached
+    - php --ini | grep 'Loaded Configuration File'
+    - ps -few | grep memcache
+    - php -i | grep memcached
+    # - pecl install memcached && docker-php-ext-enable memcached
+    - echo -e "\e[0Ksection_end:`date +%s`:my_first_section\r\e[0K"
+  variables:
+    MEMCACHED_HOST: "memcached:11211"
+    # Enable when needed. https://docs.gitlab.com/ee/ci/services/#capturing-service-container-logs
+    CI_DEBUG_SERVICES: "true"
+    # Show more log output
+    _PHPUNIT_EXTRA: --verbose
+    # Convenient, and we have no secrets.
+    _SHOW_ENVIRONMENT_VARIABLES: 1

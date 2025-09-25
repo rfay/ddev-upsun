@@ -1,6 +1,5 @@
 <?php
 
-
 if (getenv('PLATFORM_PROJECT') != "") {
     $databases['default']['default']['database'] = getenv('DB_PATH');
     $databases['default']['default']['username'] = getenv('DB_USERNAME');
@@ -15,5 +14,31 @@ if (getenv('PLATFORM_PROJECT') != "") {
     $settings['trusted_host_patterns'] = [
       'platformsh\.site$',
       'ddev\.site',
+      getenv('DDEV_HOSTNAME'),
+      'localhost',
+      '127\.0\.0\.1',
     ];
+
+    $settings['search_api.server.opensearch']['backend_config']['connector_config'] = [
+      'scheme' => 'http',
+      'host' => getenv('SEARCH_HOST') ?: 'opensearch',
+      'port' => getenv('SEARCH_PORT') ?: 9200,
+    ];
+
+    // Redis and Memcache settings; just demonstration
+    $settings['redis.connection']['interface'] = 'PhpRedis';
+    $settings['redis.connection']['host'] = getenv('CACHE_HOST');
+    $settings['redis.connection']['port'] = getenv('CACHE_PORT');
+
+    $memcache_server = getenv('MEMORY_HOST') . ":" . getenv('MEMORY_PORT');
+    $settings['memcache']['servers'] = [ $memcache_server => 'default'];
+    $settings['memcache']['bins'] = ['default' => 'default'];
+    $settings['memcache']['key_prefix'] = '';
+    $settings['cache']['default'] = 'cache.backend.memory';
+
+    $settings['cache']['bins']['render'] = 'cache.backend.memory';
+    $settings['cache']['bins']['dynamic_page_cache'] = 'cache.backend.memory';
+
+    $settings['cache']['bins']['bootstrap'] = 'cache.backend.redis';
+    $settings['cache']['bins']['config'] = 'cache.backend.redis';
 }

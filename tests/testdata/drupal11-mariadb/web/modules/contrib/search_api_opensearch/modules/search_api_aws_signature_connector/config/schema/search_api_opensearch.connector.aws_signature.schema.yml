@@ -1,0 +1,19 @@
+plugin.plugin_configuration.opensearch_connector.aws_signature:
+  type: config_object
+  label: 'OpenSearch AWS Signing authentication connector settings'
+  mapping:
+    url:
+      type: string
+      label: 'The URL to the OpenSearch cluster.'
+    ssl_verification:
+      type: boolean
+      label: 'Whether to verify the SSL certificate of the OpenSearch cluster.'
+    api_key:
+      type: string
+      label: 'The AWS API key'
+    api_secret:
+      type: string
+      label: 'The AWS API secret'
+    aws_region:
+      type: string
+      label: 'The AWS region'

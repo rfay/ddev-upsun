@@ -76,6 +76,8 @@ teardown() {
   assert_drush_functionality
   assert_database_connectivity "postgresql" "POSTGRES"
   assert_redis_connectivity
+  assert_memcached_connectivity
+  assert_cache_backends
   assert_platform_variables
   assert_web_functionality
 

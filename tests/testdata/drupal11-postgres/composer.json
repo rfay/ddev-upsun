@@ -20,6 +20,9 @@
         "drupal/core-project-message": "^11.2",
         "drupal/core-recipe-unpack": "^11.2",
         "drupal/core-recommended": "^11.2",
+        "drupal/memcache": "^2.7",
+        "drupal/redis": "^1.10",
+        "drupal/search_api_opensearch": "^2.4",
         "drush/drush": "^13.6",
         "platformsh/config-reader": "^3.0"
     },

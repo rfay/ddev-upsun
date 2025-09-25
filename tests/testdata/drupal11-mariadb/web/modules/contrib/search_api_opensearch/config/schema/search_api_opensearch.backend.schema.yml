@@ -1,0 +1,27 @@
+plugin.plugin_configuration.search_api_backend.opensearch:
+  type: config_object
+  label: 'OpenSearch settings'
+  mapping:
+    connector:
+      type: string
+      label: 'The connector plugin ID'
+    connector_config:
+      type: plugin.plugin_configuration.opensearch_connector.[%parent.connector]
+    advanced:
+      type: mapping
+      mapping:
+        fuzziness:
+          type: string
+          label: The fuzziness
+        prefix:
+          type: string
+          label: The index prefix
+        synonyms:
+          type: sequence
+          label: Synonyms
+          sequence:
+            type: string
+            label: Synonyms
+        max_ngram_diff:
+          type: integer
+          label: The maximum ngram difference

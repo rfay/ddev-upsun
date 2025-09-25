@@ -188,6 +188,16 @@ class DdevConfigGenerator
         // Add early composer install to ensure dependencies are available
         // This must run first before any scripts that depend on vendor/
         $hooksConfig = [];
+
+        // On drupal projects the normal chmod +w of sites/default doesn't happen
+        // because settings_management is disabled, so do it here
+        $hooksConfig['pre-start'][] = [
+            'exec-host' => 'chmod +w ${DDEV_DOCROOT:-web}/sites/default ${DDEV_DOCROOT:-web}/sites/default/settings*php 2>/dev/null || true',
+        ];
+        $hooksConfig['post-start'][] = [
+            'exec' => 'chmod +w ${DDEV_DOCROOT:-web}/sites/default ${DDEV_DOCROOT:-web}/sites/default/settings*php 2>/dev/null || true',
+        ];
+
         $hooksConfig['post-start'][] = [
             'exec' => 'if [ -f composer.json ] && [ ! -d vendor ]; then composer install --no-dev --optimize-autoloader; fi'
         ];
@@ -219,6 +229,11 @@ class DdevConfigGenerator
                 ];
             }
         }
+
+        // Add Drupal config import if this is a Drupal project with drush and actual config files
+        $hooksConfig['post-start'][] = [
+            'exec' => 'if [ -f vendor/bin/drush ] && [ -d config/sync ] && [ "$(find config/sync -name "*.yml" 2>/dev/null | wc -l)" -gt 0 ]; then cd web && ../vendor/bin/drush config:import --yes || true; fi'
+        ];
 
         if (!empty($hooksConfig)) {
             $config['hooks'] = $hooksConfig;
@@ -312,7 +327,10 @@ class DdevConfigGenerator
         // Extensions that don't need separate packages (built-in or special handling)
         $skipExtensions = [
             'sodium',    // Built into PHP 8.0+
-            'blackfire', // Requires special installation from blackfire.io repo
+            'blackfire', // Provided by DDEV
+            'pdo_pgsql', // provided by DDEV
+            'pgsql'
+
         ];
         
         $packages = [];

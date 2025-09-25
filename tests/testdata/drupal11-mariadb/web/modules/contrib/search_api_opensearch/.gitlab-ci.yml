@@ -1,0 +1,42 @@
+include:
+  - project: $_GITLAB_TEMPLATES_REPO
+    ref: $_GITLAB_TEMPLATES_REF
+    file:
+      - '/includes/include.drupalci.main.yml'
+      - '/includes/include.drupalci.variables.yml'
+      - '/includes/include.drupalci.workflows.yml'
+
+variables:
+  _CSPELL_WORDS: 'aggs,basicauth,asciifolding,datasource,datasources,fuzzyness,geofield,geophp,geopoint,lucene,makina,ngram,opensearchproject,querytime,multifield'
+  OPT_IN_TEST_PREVIOUS_MINOR: 1
+  OPT_IN_TEST_NEXT_MINOR: 1
+
+composer (next minor):
+  allow_failure: true
+  variables:
+    _LENIENT_ALLOW_LIST: geofield
+
+phpcs:
+  allow_failure: false
+
+phpstan:
+  allow_failure: false
+
+phpstan (next major):
+  allow_failure: true
+
+phpstan (next minor):
+  allow_failure: true
+
+phpunit:
+  extends: .phpunit-base
+  services:
+    - !reference [.with-database]
+    - !reference [.with-chrome]
+    - name: opensearchproject/opensearch:2
+      alias: opensearch
+      variables:
+        _SHOW_ENVIRONMENT_VARIABLES: 1
+        'discovery.type': 'single-node'
+        DISABLE_SECURITY_PLUGIN: 'true'
+        OPENSEARCH_JAVA_OPTS: '-Xms1g -Xmx1g'
