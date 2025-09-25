@@ -64,7 +64,7 @@ These project types are included in the automated tests that run with every chan
   * [drupal11-mysql](tests/testdata/drupal11-mysql/)
   * [drupal11-postgres](tests/testdata/drupal11-postgres/)
 
-Each test configuration includes Redis, OpenSearch, and Memcached services to ensure comprehensive coverage.
+Each test configuration includes coverage for Redis, OpenSearch, and Memcached services.
 
 ## What has NOT been tested yet
 
@@ -101,7 +101,7 @@ We're particularly interested in:
 ## What will it do in the future
 
 - [x] Basic PHP project support with database configuration
-- [x] Drupal 11 comprehensive testing
+- [x] Drupal 11 testing
 - [ ] Support Upsun-Fixed (Platform.sh-style) configuration, `.platform.app.yaml` files
 - [ ] Laravel project support and testing
 - [ ] Symfony project support and testing
