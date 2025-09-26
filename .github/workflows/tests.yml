@@ -44,10 +44,13 @@ jobs:
     strategy:
       matrix:
         ddev_version: [stable, HEAD]
-        bats_tag: [
-          "drupal11-mariadb",
-          "drupal11-mysql",
-          "drupal11-postgres",
+        bats_test: [
+          "test-drupal11-mariadb-flex",
+          "test-drupal11-mariadb-fixed",
+          "test-drupal11-mysql-flex",
+          "test-drupal11-mysql-fixed",
+          "test-drupal11-postgres-flex",
+          "test-drupal11-postgres-fixed",
         ]
       fail-fast: false
 
@@ -201,4 +204,4 @@ jobs:
           which ddev
           ls -l $(which ddev)
           echo "Starting bats tests"
-          bats tests --verbose-run -f ${{ matrix.bats_tag }}
+          bats tests/drupal11-unified.bats --verbose-run -f "${{ matrix.bats_test }}"

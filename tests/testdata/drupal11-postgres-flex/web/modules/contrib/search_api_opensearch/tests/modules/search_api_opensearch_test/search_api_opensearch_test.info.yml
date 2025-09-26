@@ -1,0 +1,15 @@
+type: module
+name: 'Search API OpenSearch Test'
+description: 'Search API OpenSearch test module'
+package: 'Search'
+dependencies:
+  - search_api_opensearch:search_api_opensearch
+  - search_api:search_api_test
+  - search_api:search_api_test_example_content
+core_version_requirement: ^9 || ^10 || ^11
+hidden: true
+
+# Information added by Drupal.org packaging script on 2025-06-17
+version: '2.4.2'
+project: 'search_api_opensearch'
+datestamp: 1750135575

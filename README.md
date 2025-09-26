@@ -103,7 +103,9 @@ We're particularly interested in:
 
 - [x] Basic PHP project support with database configuration
 - [x] Drupal 11 testing
-- [ ] Support Upsun-Fixed (Platform.sh-style) configuration, `.platform.app.yaml` files
+- [x] Support Upsun-Fixed (Platform.sh-style) configuration, `.platform.app.yaml` files
+- [ ] Additional Upsun service support (`elasticsearch-enterprise`, `redis-persistent`, `influxdb`, etc.)
+- [ ] Service version specification support (e.g., `redis:8`) passed to DDEV add-ons
 - [ ] Laravel project support and testing
 - [ ] Symfony project support and testing
 - [ ] WordPress project support and testing

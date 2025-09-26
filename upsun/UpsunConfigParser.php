@@ -7,11 +7,11 @@ namespace Upsun;
 /**
  * #ddev-generated
  * Upsun Configuration Parser
- * 
+ *
  * Parses Upsun configuration files from the .upsun directory and extracts
  * relevant configuration data for DDEV translation.
  */
-class UpsunConfigParser
+class UpsunConfigParser implements UpsunConfigParserInterface
 {
     private string $projectRoot;
     private string $upsunDir;

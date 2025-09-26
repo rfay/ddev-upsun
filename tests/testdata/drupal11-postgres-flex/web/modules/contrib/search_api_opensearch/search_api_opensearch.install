@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Search API OpenSearch.
+ */
+
+use Drupal\search_api\Entity\Server;
+use Drupal\search_api_opensearch\Plugin\OpenSearch\Connector\StandardConnector;
+use Drupal\search_api_opensearch\Plugin\search_api\backend\OpenSearchBackend;
+
+/**
+ * Set default value of ssl_verification option.
+ */
+function search_api_opensearch_update_9201() {
+  $search_api_servers = \Drupal::entityTypeManager()->getStorage('search_api_server')->loadMultiple();
+  foreach ($search_api_servers as $search_api_server) {
+    $backend = $search_api_server->getBackend();
+    if ($backend instanceof OpenSearchBackend) {
+      $connector = $backend->getConnector();
+      if ($connector instanceof StandardConnector) {
+        $backend_config = $search_api_server->getBackendConfig();
+        $backend_config['connector_config']['ssl_verification'] = TRUE;
+        $search_api_server->set('backend_config', $backend_config);
+        $search_api_server->save();
+      }
+    }
+  }
+}
+
+/**
+ * Update module configuration and and populate values for new settings.
+ */
+function search_api_opensearch_update_10201(&$sandbox) {
+  $servers = Server::loadMultiple();
+  foreach ($servers as $server) {
+    if ($server->getBackend()->getPluginId() === 'opensearch') {
+      $backend_config = $server->getBackendConfig();
+      if (!isset($backend_config['advanced']['max_ngram_diff'])) {
+        // Set a default value for max_ngram_diff.
+        $backend_config['advanced']['max_ngram_diff'] = 1;
+        $server->setBackendConfig($backend_config);
+        $server->save();
+      }
+    }
+  }
+}

@@ -42,15 +42,10 @@ class ServiceDetector
      */
     public function detectAndCreateDependencies(): void
     {
-        if (!is_dir($this->upsunDir)) {
-            echo "ℹ️  No .upsun directory found\n";
-            return;
-        }
-
         $services = $this->detectServices();
-        
+
         if (empty($services)) {
-            echo "ℹ️  No supported services detected in .upsun configuration\n";
+            echo "ℹ️  No supported services detected in Upsun configuration\n";
             return;
         }
 
@@ -63,19 +58,28 @@ class ServiceDetector
      */
     private function detectServices(): array
     {
-        $configFile = $this->upsunDir . '/config.yaml';
-        $appFile = $this->upsunDir . '/.platform.app.yaml';
         $services = [];
 
-        // Check both possible config locations
-        foreach ([$configFile, $appFile] as $file) {
-            if (file_exists($file)) {
-                $content = file_get_contents($file);
-                $services = $this->parseServicesFromContent($content);
-                if (!empty($services)) {
-                    break; // Use first file with services
+        // Try Upsun Flex format first (.upsun directory)
+        if (is_dir($this->upsunDir)) {
+            $configFile = $this->upsunDir . '/config.yaml';
+            $appFile = $this->upsunDir . '/.platform.app.yaml';
+
+            // Check both possible config locations in .upsun directory
+            foreach ([$configFile, $appFile] as $file) {
+                if (file_exists($file)) {
+                    $content = file_get_contents($file);
+                    $services = $this->parseServicesFromContent($content);
+                    if (!empty($services)) {
+                        break; // Use first file with services
+                    }
                 }
             }
+        }
+
+        // If no services found, try Upsun Fixed format (.platform directory)
+        if (empty($services)) {
+            $services = $this->detectFixedFormatServices();
         }
 
         return $services;
@@ -111,6 +115,46 @@ class ServiceDetector
                         'addon' => self::SERVICE_TO_ADDON[$serviceType]
                     ];
                     echo "✅ Detected {$serviceType} service '{$serviceName}' (version {$version})\n";
+                }
+            }
+        }
+
+        return $services;
+    }
+
+    /**
+     * Detect services from Upsun Fixed format (.platform directory)
+     */
+    private function detectFixedFormatServices(): array
+    {
+        $servicesFile = $this->projectRoot . '/.platform/services.yaml';
+        $services = [];
+
+        if (!file_exists($servicesFile)) {
+            return $services;
+        }
+
+        $content = file_get_contents($servicesFile);
+        if ($content === false) {
+            return $services;
+        }
+
+        // Fixed format has services at the root level, not nested under "services:"
+        // Format: "servicename:\n    type: servicetype:version"
+        if (preg_match_all('/^(\w+):\s*$.*?^\s*type:\s*(\w+):([0-9.]+)/ms', $content, $serviceMatches, PREG_SET_ORDER)) {
+            foreach ($serviceMatches as $match) {
+                $serviceName = $match[1];
+                $serviceType = $match[2];
+                $version = $match[3];
+
+                if (isset(self::SERVICE_TO_ADDON[$serviceType])) {
+                    $services[] = [
+                        'name' => $serviceName,
+                        'type' => $serviceType,
+                        'version' => $version,
+                        'addon' => self::SERVICE_TO_ADDON[$serviceType]
+                    ];
+                    echo "✅ Detected {$serviceType} service '{$serviceName}' (version {$version}) from Fixed format\n";
                 }
             }
         }

@@ -2,7 +2,10 @@ name: upsun
 
 project_files:
   - upsun/install-hook.php
+  - upsun/UpsunConfigParserInterface.php
   - upsun/UpsunConfigParser.php
+  - upsun/FixedConfigDetector.php
+  - upsun/FixedConfigParser.php
   - upsun/DdevConfigGenerator.php
   - upsun/PlatformEnvironmentGenerator.php
   - upsun/EnvironmentLoader.php

@@ -1,0 +1,39 @@
+uuid: d646aaa8-1004-4fc5-9893-b43524a86133
+langcode: en
+status: true
+dependencies:
+  config:
+    - search_api.server.opensearch
+  module:
+    - node
+    - search_api_opensearch
+id: opensearch
+name: opensearch
+description: ''
+read_only: false
+field_settings: {  }
+datasource_settings:
+  'entity:node':
+    bundles:
+      default: true
+      selected: {  }
+    languages:
+      default: true
+      selected: {  }
+processor_settings:
+  add_url: {  }
+  aggregated_field: {  }
+  custom_value: {  }
+  entity_type: {  }
+  language_with_fallback: {  }
+  rendered_item: {  }
+  search_api_opensearch_date_range: {  }
+tracker_settings:
+  default:
+    indexing_order: fifo
+options:
+  cron_limit: 50
+  delete_on_fail: true
+  index_directly: true
+  track_changes_in_references: true
+server: opensearch

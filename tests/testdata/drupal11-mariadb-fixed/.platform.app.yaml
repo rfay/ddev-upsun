@@ -1,0 +1,51 @@
+# The name of this app. Must be unique within a project.
+name: drupal
+
+# The runtime the application uses.
+type: php:8.3
+
+# The relationships of the application with services or other applications.
+relationships:
+    database: 'db:mysql'
+    redis: 'cache:redis'
+
+# The configuration of app when it is exposed to the web.
+web:
+    locations:
+        "/":
+            root: "web"
+            expires: 5m
+            passthru: "/index.php"
+            allow: false
+            rules:
+                '\.(jpe?g|png|gif|svgz?|css|js|map|ico|bmp|eot|woff2?|otf|ttf)$':
+                    allow: true
+
+# The size of the persistent disk of the application (in MB).
+disk: 2048
+
+# The 'mounts' describe writable, persistent filesystem mounts in the application.
+mounts:
+    '/web/sites/default/files':
+        source: local
+        source_path: 'files'
+    '/tmp':
+        source: local
+        source_path: 'tmp'
+    '/private':
+        source: local
+        source_path: 'private'
+    '/.drush':
+        source: local
+        source_path: 'drush'
+    '/drush-backups':
+        source: local
+        source_path: 'drush-backups'
+
+# PHP extensions
+runtime:
+    extensions:
+        - redis
+        - sodium
+        - apcu
+        - blackfire

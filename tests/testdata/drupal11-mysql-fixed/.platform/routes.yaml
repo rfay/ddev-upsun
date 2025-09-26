@@ -1,0 +1,9 @@
+# The routes of the project.
+
+"https://{default}/":
+    type: upstream
+    upstream: "drupal:http"
+
+"https://www.{default}/":
+    type: redirect
+    to: "https://{default}/"

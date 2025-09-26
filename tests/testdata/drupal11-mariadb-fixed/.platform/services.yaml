@@ -1,0 +1,8 @@
+# The services of the project.
+
+db:
+    type: mariadb:11.8
+    disk: 2048
+
+cache:
+    type: redis:8.0

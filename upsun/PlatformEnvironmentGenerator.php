@@ -20,10 +20,10 @@ namespace Upsun;
  */
 class PlatformEnvironmentGenerator
 {
-    private UpsunConfigParser $parser;
+    private UpsunConfigParserInterface $parser;
     private string $projectRoot;
 
-    public function __construct(UpsunConfigParser $parser, string $projectRoot)
+    public function __construct(UpsunConfigParserInterface $parser, string $projectRoot)
     {
         $this->parser = $parser;
         $this->projectRoot = rtrim($projectRoot, '/');
