@@ -1,5 +1,0 @@
-name: 'Image field property constraint validation'
-type: module
-description: 'Testing module with a constraint for image alt property'
-package: Testing
-version: VERSION

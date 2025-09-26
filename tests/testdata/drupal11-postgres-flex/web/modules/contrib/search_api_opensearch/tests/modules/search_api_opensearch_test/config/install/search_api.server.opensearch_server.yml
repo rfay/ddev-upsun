@@ -1,0 +1,17 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - search_api_opensearch
+id: opensearch_server
+name: opensearch_server
+description: 'Local test server'
+backend: opensearch
+backend_config:
+  connector: standard
+  connector_config:
+    url: 'http://opensearch:9200'
+    ssl_verification: true
+  advanced:
+    fuzziness: auto
+    prefix: test_

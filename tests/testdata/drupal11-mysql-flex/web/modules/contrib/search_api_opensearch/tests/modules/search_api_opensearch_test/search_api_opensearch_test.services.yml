@@ -1,0 +1,5 @@
+services:
+  search_api_opensearch_test.event_subscriber:
+    class: Drupal\search_api_opensearch_test\EventSubscriber\OpenSearchEventSubscribers
+    tags:
+      - { name: event_subscriber }

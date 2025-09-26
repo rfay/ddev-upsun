@@ -1,0 +1,8 @@
+# The services of the project.
+
+db:
+    type: oracle-mysql:8.0
+    disk: 2048
+
+cache:
+    type: redis:8.0

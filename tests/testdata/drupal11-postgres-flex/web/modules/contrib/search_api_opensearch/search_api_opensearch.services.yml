@@ -1,0 +1,90 @@
+parameters:
+  max_retries: 0
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  plugin.manager.search_api_opensearch.connector:
+    class: Drupal\search_api_opensearch\Connector\ConnectorPluginManager
+    parent: default_plugin_manager
+  Drupal\search_api_opensearch\Connector\ConnectorPluginManager: '@plugin.manager.search_api_opensearch.connector'
+
+  plugin.manager.search_api_opensearch.analyser:
+    class: Drupal\search_api_opensearch\Analyser\AnalyserManager
+    parent: default_plugin_manager
+  Drupal\search_api_opensearch\Analyser\AnalyserManager: '@plugin.manager.search_api_opensearch.analyser'
+
+  logger.channel.search_api_opensearch:
+    parent: logger.channel_base
+    arguments: ['search_api_opensearch']
+
+  logger.channel.search_api_opensearch_client:
+    parent: logger.channel_base
+    arguments: ['search_api_opensearch_client']
+
+  search_api_opensearch.index_param_builder:
+    class: Drupal\search_api_opensearch\SearchAPI\IndexParamBuilder
+  Drupal\search_api_opensearch\SearchAPI\IndexParamBuilder: '@search_api_opensearch.index_param_builder'
+
+  search_api_opensearch.query_sort_builder:
+    class: Drupal\search_api_opensearch\SearchAPI\Query\QuerySortBuilder
+  Drupal\search_api_opensearch\SearchAPI\Query\QuerySortBuilder: '@search_api_opensearch.query_sort_builder'
+
+  search_api_opensearch.query_filter_builder:
+    class: Drupal\search_api_opensearch\SearchAPI\Query\FilterBuilder
+  Drupal\search_api_opensearch\SearchAPI\Query\FilterBuilder: '@search_api_opensearch.query_filter_builder'
+
+  search_api_opensearch.search_param_builder:
+    class: Drupal\search_api_opensearch\SearchAPI\Query\SearchParamBuilder
+  Drupal\search_api_opensearch\SearchAPI\Query\SearchParamBuilder: '@search_api_opensearch.search_param_builder'
+
+  search_api_opensearch.more_like_this_param_builder:
+    class: Drupal\search_api_opensearch\SearchAPI\MoreLikeThisParamBuilder
+  Drupal\search_api_opensearch\SearchAPI\MoreLikeThisParamBuilder: '@search_api_opensearch.more_like_this_param_builder'
+
+  search_api_opensearch.facet_builder:
+    class: Drupal\search_api_opensearch\SearchAPI\Query\FacetParamBuilder
+  Drupal\search_api_opensearch\SearchAPI\Query\FacetParamBuilder: '@search_api_opensearch.facet_builder'
+
+  search_api_opensearch.spell_check_builder:
+    class: Drupal\search_api_opensearch\SearchAPI\Query\SpellCheckBuilder
+  Drupal\search_api_opensearch\SearchAPI\Query\SpellCheckBuilder: '@search_api_opensearch.spell_check_builder'
+
+  search_api_opensearch.query_param_builder:
+    class: Drupal\search_api_opensearch\SearchAPI\Query\QueryParamBuilder
+  Drupal\search_api_opensearch\SearchAPI\Query\QueryParamBuilder: '@search_api_opensearch.query_param_builder'
+
+  search_api_opensearch.delete_param_builder:
+    class: Drupal\search_api_opensearch\SearchAPI\DeleteParamBuilder
+  Drupal\search_api_opensearch\SearchAPI\DeleteParamBuilder: '@search_api_opensearch.delete_param_builder'
+
+  search_api_opensearch.facet_result_parser:
+    class: Drupal\search_api_opensearch\SearchAPI\Query\FacetResultParser
+  Drupal\search_api_opensearch\SearchAPI\Query\FacetResultParser: '@search_api_opensearch.facet_result_parser'
+
+  search_api_opensearch.spell_check_result_parser:
+    class: Drupal\search_api_opensearch\SearchAPI\Query\SpellCheckResultParser
+  Drupal\search_api_opensearch\SearchAPI\Query\SpellCheckResultParser: '@search_api_opensearch.spell_check_result_parser'
+
+  search_api_opensearch.query_result_parser:
+    class: Drupal\search_api_opensearch\SearchAPI\Query\QueryResultParser
+  Drupal\search_api_opensearch\SearchAPI\Query\QueryResultParser:  '@search_api_opensearch.query_result_parser'
+
+  search_api_opensearch.field_mapper:
+    class: Drupal\search_api_opensearch\SearchAPI\FieldMapper
+  Drupal\search_api_opensearch\SearchAPI\FieldMapper: '@search_api_opensearch.field_mapper'
+
+  search_api_opensearch.backend_client_factory:
+    class: Drupal\search_api_opensearch\SearchAPI\BackendClientFactory
+  Drupal\search_api_opensearch\SearchAPI\BackendClientFactory: '@search_api_opensearch.backend_client_factory'
+
+  search_api_opensearch.synonyms_subscriber:
+    class: Drupal\search_api_opensearch\Event\SynonymsSubscriber
+
+  OpenSearch\ClientFactoryInterface:
+    class: OpenSearch\GuzzleClientFactory
+    arguments:
+      - '%max_retries%'
+      - '@logger.channel.search_api_opensearch_client'

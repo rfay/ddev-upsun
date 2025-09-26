@@ -1,0 +1,18 @@
+services:
+  memcache_admin.display_statistics:
+    class: Drupal\memcache_admin\EventSubscriber\MemcacheAdminSubscriber
+    arguments:
+      - '@memcache.factory'
+      - '@config.factory'
+      - '@current_user'
+      - '@renderer'
+    tags:
+      - { name: event_subscriber }
+  memcache_stats.memcached:
+    class: Drupal\memcache_admin\EventSubscriber\MemcacheServerStatsSubscriber
+    tags:
+      - { name: event_subscriber }
+  memcache_stats.mcrouter:
+    class: Drupal\memcache_admin\EventSubscriber\McrouterStatsSubscriber
+    tags:
+      - { name: event_subscriber }

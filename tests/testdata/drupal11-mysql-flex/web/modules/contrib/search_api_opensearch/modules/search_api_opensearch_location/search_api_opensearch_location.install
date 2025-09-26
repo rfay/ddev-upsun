@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions.
+ */
+
+use Drupal\geofield\GeoPHP\GeoPHPWrapper;
+
+/**
+ * Implements hook_requirements().
+ */
+function search_api_opensearch_location_requirements(string $phase): array {
+  if ($phase === 'install') {
+    if (!class_exists(GeoPHPWrapper::class)) {
+      return [
+        'search_api_opensearch_location' => [
+          'description' => t('The GeoPHP library is required.'),
+          'severity' => REQUIREMENT_ERROR,
+        ],
+      ];
+    }
+  }
+  return [];
+}

@@ -1,0 +1,5 @@
+services:
+  search_api_opensearch_location.event_subscriber:
+    class: Drupal\search_api_opensearch_location\EventSubscriber\DataTypeEventSubscriber
+    tags:
+      - { name: event_subscriber }

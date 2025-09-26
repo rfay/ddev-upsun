@@ -1,0 +1,21 @@
+uuid: 80a20a79-6061-4686-9e9d-1b67cb4bc37f
+langcode: en
+status: true
+dependencies:
+  module:
+    - search_api_opensearch
+id: opensearch
+name: opensearch
+description: ''
+backend: opensearch
+backend_config:
+  connector: standard
+  connector_config:
+    url: 'http://opensearch:9200'
+    ssl_verification: false
+  advanced:
+    fuzziness: auto
+    prefix: ''
+    synonyms:
+      - ''
+    max_ngram_diff: 1

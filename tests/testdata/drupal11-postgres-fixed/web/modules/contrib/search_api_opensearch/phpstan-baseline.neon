@@ -1,0 +1,41 @@
+parameters:
+	ignoreErrors:
+		-
+			message: """
+				#^Call to deprecated method calculatePluginDependencies\\(\\) of class Drupal\\\\search_api_opensearch\\\\Plugin\\\\search_api\\\\backend\\\\OpenSearchBackend\\:
+				in search_api\\:8\\.x\\-1\\.16 and is removed from search_api\\:2\\.0\\.0\\.
+				  Add \\\\Drupal\\\\Core\\\\Plugin\\\\PluginDependencyTrait manually for your class if
+				  you need it\\.$#
+			"""
+			count: 1
+			path: src/Plugin/search_api/backend/OpenSearchBackend.php
+
+		-
+			message: "#^Method Drupal\\\\search_api_opensearch\\\\Plugin\\\\search_api\\\\backend\\\\OpenSearchBackend\\:\\:calculateDependencies\\(\\) should return array but return statement is missing\\.$#"
+			count: 1
+			path: src/Plugin/search_api/backend/OpenSearchBackend.php
+
+		-
+			message: "#^Variable \\$fieldName might not be defined\\.$#"
+			count: 1
+			path: src/SearchAPI/FieldMapper.php
+
+		-
+			message: "#^Cannot unset offset 'fields' on array\\{from\\: mixed, size\\: mixed, sort\\?\\: non\\-empty\\-array, query\\?\\: non\\-empty\\-array\\}\\.$#"
+			count: 1
+			path: src/SearchAPI/Query/QueryParamBuilder.php
+
+		-
+			message: "#^Cannot unset offset 'post_filter' on array\\{from\\: mixed, size\\: mixed, sort\\?\\: non\\-empty\\-array, query\\?\\: non\\-empty\\-array\\}\\.$#"
+			count: 1
+			path: src/SearchAPI/Query/QueryParamBuilder.php
+
+		-
+			message: "#^Variable \\$body in empty\\(\\) always exists and is not falsy\\.$#"
+			count: 1
+			path: src/SearchAPI/Query/QueryParamBuilder.php
+
+		-
+			message: "#^Variable \\$fields in empty\\(\\) is never defined\\.$#"
+			count: 1
+			path: src/SearchAPI/Query/QueryParamBuilder.php

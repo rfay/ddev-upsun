@@ -1,0 +1,21 @@
+{
+    "name": "drupal/search_api_opensearch",
+    "description": "Provides an OpenSearch backend for Search API.",
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": "^8.1",
+        "drupal/search_api": "^1.34",
+        "makinacorpus/php-lucene": "^1.1",
+        "opensearch-project/opensearch-php": "^2.4.3",
+        "guzzlehttp/guzzle": "^7.5"
+    },
+    "suggest": {
+        "drupal/geofield": "Required when using search_api_opensearch_location.",
+        "aws/aws-sdk-php": "Required when using search_api_aws_signature_connector."
+    },
+    "require-dev": {
+        "drupal/geofield": "^1.46",
+        "aws/aws-sdk-php": "^3.288"
+    }
+}
